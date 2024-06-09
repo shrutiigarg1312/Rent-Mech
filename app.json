@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "equipments-rental-app",
-    "slug": "equipments-rental-app",
+    "name": "Rent Mech",
+    "slug": "Rent Mech",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
