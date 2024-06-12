@@ -3,7 +3,7 @@ import { SafeAreaView, View, FlatList, Text, Image, StyleSheet, useWindowDimensi
 import axios from 'axios';
 import qs from 'qs';
 
-const NewItemsScreen = ({ route }) => {
+const NewItemsScreen = ({ navigation }) => {
   const [newItems, setNewItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -92,6 +92,7 @@ const NewItemsScreen = ({ route }) => {
         console.error('Error:', error);
         Alert.alert('Error', 'There was a problem with your purchase.');
       });
+      navigation.navigate("Orders");
   };
 
   return (
