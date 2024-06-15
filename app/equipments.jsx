@@ -11,12 +11,13 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import qs from "qs";
+import { useRoute } from "@react-navigation/native";
 
 import GridView from "../components/GridView";
 import PurchaseModal from "../components/PurchaseModal";
 
 const NewItemsScreen = ({ navigation, route }) => {
-  const { itemType } = route.params;
+  const { category } = route.params;
 
   const [key, setKey] = useState(Date.now());
   const [numColumns, setNumColumns] = useState(1);
@@ -91,7 +92,7 @@ const NewItemsScreen = ({ navigation, route }) => {
         </TouchableOpacity>
         <View className="flex-1 items-center">
           <Text className="text-xl font-semibold text-black">
-            {itemType}s Available
+            {category}s Available
           </Text>
         </View>
       </View>
