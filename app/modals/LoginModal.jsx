@@ -4,23 +4,70 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 
 const LoginModal = () => {
-  const { isLoginModalVisible, closeLoginModal } = useAuth();
+  const { isLoginModalVisible, closeLoginModal, setAuthData } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(""); // State to hold error message
 
-  const handleLogin = () => {
-    // Add your authentication logic here
-    //login();
-    console.log("Email:", email);
-    console.log("Password:", password);
-    closeLoginModal();
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password.");
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://rentmech.onrender.com/authenticate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          email,
+          password,
+        }).toString(),
+      });
+      const data = await response.json();
+      console.log("API call result:", data.success);
+      if (!data.success) {
+        if (data.msg == "User not found") {
+          // throw new Error('User not found');
+          setError('User not found');
+        }
+        else {
+          // throw new Error('Wrong email or password');
+          setError('Wrong email or password');
+        }
+      }
+      else {
+
+      //API returns a token
+      const { token } = data;
+
+      // Update your auth context or state
+      setAuthData({ token , email });
+      console.log(data.token);
+      closeLoginModal();
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearError = () => {
+    setError(""); // Clear error message
   };
 
   return (
@@ -30,37 +77,45 @@ const LoginModal = () => {
       visible={isLoginModalVisible}
       onRequestClose={closeLoginModal}
     >
-      <View className="flex-1 items-center justify-center bg-blackTransparent">
-        <View className="w-80 bg-white rounded-lg items-center overflow-hidden">
-          <View className="p-3 w-full h-12 items-center mb-6 border-b border-darkgray shadow">
-            <Text className="text-lg font-bold ">Login</Text>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Login</Text>
           </View>
-          <View className="self-stretch px-4 mb-4">
+          <View style={styles.body}>
             <TextInput
-              className="w-full p-3 border border-darkgray rounded mb-4"
+              style={styles.input}
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
             <TextInput
-              className="w-full p-3 border border-darkgray rounded mb-4"
+              style={styles.input}
               placeholder="Password"
               value={password}
               onChangeText={setPassword}
+              secureTextEntry
             />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
-          <View className="flex-row justify-evenly w-full">
+          <View style={styles.footer}>
             <TouchableOpacity
-              className="flex-1 p-2 bg-green rounded items-center m-2"
+              style={[styles.button, styles.loginButton]}
               onPress={handleLogin}
+              disabled={loading}
             >
-              <Text className="text-white font-semibold">Login</Text>
+              <Text style={styles.buttonText}>
+                {loading ? "Logging in..." : "Login"}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="flex-1 p-2 bg-red rounded items-center m-2"
+              style={[styles.button, styles.cancelButton]}
               onPress={closeLoginModal}
+              disabled={loading}
             >
-              <Text className="text-white font-semibold">Cancel</Text>
+              <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -82,12 +137,51 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 10,
   },
+  header: {
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  body: {
+    width: "100%",
+  },
   input: {
     width: "100%",
     padding: 10,
     marginVertical: 10,
     borderWidth: 1,
     borderColor: "#ccc",
+    borderRadius: 5,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  loginButton: {
+    backgroundColor: "green",
+  },
+  cancelButton: {
+    backgroundColor: "red",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
   },
 });
 

@@ -7,6 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthContextProvider = ({ children }) => {
   const [isLoginModalVisible, setLoginModalVisible] = useState(false);
+  const [authData, setAuthData] = useState(null);
 
   const openLoginModal = () => {
     setLoginModalVisible(true);
@@ -22,6 +23,8 @@ export const AuthContextProvider = ({ children }) => {
         isLoginModalVisible,
         openLoginModal,
         closeLoginModal,
+        authData,
+        setAuthData,
       }}
     >
       {children}
