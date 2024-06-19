@@ -55,7 +55,7 @@ const LoginModal = () => {
       const { token } = data;
 
       // Update your auth context or state
-      setAuthData({ token , email });
+      setAuthData({ email });
       console.log(data.token);
       closeLoginModal();
       }
