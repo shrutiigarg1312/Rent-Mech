@@ -6,8 +6,10 @@ import {
   Modal,
   Alert,
   TouchableOpacity,
+  Picker, // Import Picker component
 } from "react-native";
 import qs from "qs";
+import { useAuth } from "../context/AuthContext";
 
 const PurchaseModal = ({
   modalVisible,
@@ -18,11 +20,18 @@ const PurchaseModal = ({
 }) => {
   const [formData, setFormData] = useState({
     email: "",
-    phone: "",
+    date: "",
+    duration: "",
+    durationUnit: "days", // Add duration unit to formData
     location: "",
     rent: "",
     productName: "",
+    address: "",
   });
+
+  const { authData } = useAuth();
+
+  console.log(authData);
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -32,9 +41,10 @@ const PurchaseModal = ({
     const orderData = qs.stringify({
       productName: selectedItem.productName,
       location: formData.location,
-      email: formData.email,
+      email: authData.email,
       rent: selectedItem.rent,
-      phone: formData.phone,
+      date: formData.date,
+      duration: `${formData.duration} ${formData.durationUnit}`, // Concatenate duration and unit
     });
 
     fetch("https://rentmech.onrender.com/makeOrder", {
@@ -65,60 +75,141 @@ const PurchaseModal = ({
         setSelectedItem(null);
       }}
     >
-      <View className="flex-1 items-center justify-center bg-blackTransparent">
-        <View className="w-80 bg-white rounded-lg items-center overflow-hidden">
-          <View className="p-3 w-full h-12 items-center mb-6 border-b border-darkgray shadow">
-            <Text className="text-lg font-bold ">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>
               Rent {selectedItem.productName}
             </Text>
           </View>
-          <View className="self-stretch px-4 mb-4">
+          <View style={styles.body}>
             <TextInput
-              className="w-full p-3 border border-darkgray rounded mb-4"
-              placeholder="Email"
-              value={formData.email}
-              onChangeText={(text) => handleInputChange("email", text)}
-            />
-            <TextInput
-              className="w-full p-3 border border-darkgray rounded mb-4"
-              placeholder="Phone"
-              value={formData.phone}
-              onChangeText={(text) => handleInputChange("phone", text)}
-            />
-            <TextInput
-              className="w-full p-3 border border-darkgray rounded mb-4"
-              placeholder="Rent"
-              value={formData.rent}
-              onChangeText={(text) => handleInputChange("rent", text)}
-            />
-            <TextInput
-              className="w-full p-3 border border-darkgray rounded mb-4"
+              style={styles.input}
               placeholder="Location"
               value={formData.location}
               onChangeText={(text) => handleInputChange("location", text)}
             />
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => handleInputChange("date", e.target.value)}
+              style={styles.dateInput}
+            />
+            <View style={styles.durationContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Duration"
+                value={formData.duration}
+                onChangeText={(text) => handleInputChange("duration", text)}
+                keyboardType="numeric"
+              />
+              <Picker
+                selectedValue={formData.durationUnit}
+                style={styles.picker}
+                onValueChange={(itemValue) =>
+                  handleInputChange("durationUnit", itemValue)
+                }
+              >
+                <Picker.Item label="Days" value="days" />
+                <Picker.Item label="Hours" value="hours" />
+                <Picker.Item label="Months" value="months" />
+              </Picker>
+            </View>
           </View>
-          <View className="flex-row justify-evenly w-full">
+          <View style={styles.footer}>
             <TouchableOpacity
-              className="flex-1 p-2 bg-green rounded items-center m-2"
+              style={[styles.button, styles.submitButton]}
               onPress={handleSubmit}
             >
-              <Text className="text-white font-semibold">Submit</Text>
+              <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="flex-1 p-2 bg-red rounded items-center m-2"
+              style={[styles.button, styles.cancelButton]}
               onPress={() => {
                 setModalVisible(false);
                 setSelectedItem(null);
               }}
             >
-              <Text className="text-white font-semibold">Cancel</Text>
+              <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
     </Modal>
   );
+};
+
+const styles = {
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+  },
+  header: {
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  body: {
+    width: "100%",
+  },
+  input: {
+    width: "100%",
+    padding: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+  },
+  dateInput: {
+    width: "100%",
+    padding: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+  },
+  durationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  picker: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  submitButton: {
+    backgroundColor: "green",
+  },
+  cancelButton: {
+    backgroundColor: "red",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
 };
 
 export default PurchaseModal;
