@@ -1,17 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Alert,
+  Pressable,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 
 const LoginModal = () => {
-  const { isLoginModalVisible, closeLoginModal, setAuthData } = useAuth();
+  const { isLoginModalVisible, closeLoginModal, openSignupModal, setAuthData } =
+    useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,37 +28,37 @@ const LoginModal = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://rentmech.onrender.com/authenticate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          email,
-          password,
-        }).toString(),
-      });
+      const response = await fetch(
+        "https://rentmech.onrender.com/authenticate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            email,
+            password,
+          }).toString(),
+        }
+      );
       const data = await response.json();
       console.log("API call result:", data.success);
       if (!data.success) {
         if (data.msg == "User not found") {
           // throw new Error('User not found');
-          setError('User not found');
-        }
-        else {
+          setError("User not found");
+        } else {
           // throw new Error('Wrong email or password');
-          setError('Wrong email or password');
+          setError("Wrong email or password");
         }
-      }
-      else {
+      } else {
+        //API returns a token
+        const { token } = data;
 
-      //API returns a token
-      const { token } = data;
-
-      // Update your auth context or state
-      setAuthData({ email });
-      console.log(data.token);
-      closeLoginModal();
+        // Update your auth context or state
+        setAuthData({ email });
+        console.log(data.token);
+        closeLoginModal();
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -68,6 +69,11 @@ const LoginModal = () => {
 
   const clearError = () => {
     setError(""); // Clear error message
+  };
+
+  const handleSignupPress = () => {
+    closeLoginModal();
+    openSignupModal();
   };
 
   return (
@@ -101,7 +107,7 @@ const LoginModal = () => {
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
-            <TouchableOpacity
+            <Pressable
               style={[styles.button, styles.loginButton]}
               onPress={handleLogin}
               disabled={loading}
@@ -109,14 +115,27 @@ const LoginModal = () => {
               <Text style={styles.buttonText}>
                 {loading ? "Logging in..." : "Login"}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </Pressable>
+            <Pressable
               style={[styles.button, styles.cancelButton]}
               onPress={closeLoginModal}
               disabled={loading}
             >
               <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+            </Pressable>
+          </View>
+          <View style={styles.signup}>
+            <Pressable onPress={handleSignupPress}>
+              <Text className="text-center text-blue-500 mt-4">
+                Don't have an account?{" "}
+                <Text
+                  style={{ color: "blue", textDecorationLine: "underline" }}
+                  onPress={handleSignupPress} // This opens the signup modal
+                >
+                  Sign Up
+                </Text>
+              </Text>
+            </Pressable>
           </View>
         </View>
       </View>
@@ -163,11 +182,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    flex: 1,
+    width: 120,
     padding: 10,
     alignItems: "center",
     borderRadius: 5,
-    marginHorizontal: 5,
   },
   loginButton: {
     backgroundColor: "green",
@@ -182,6 +200,12 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     marginBottom: 10,
+  },
+  signup: {
+    flex: 1,
+    alignItems: "center",
+    marginTop: 15,
+    fontSize: 30,
   },
 });
 

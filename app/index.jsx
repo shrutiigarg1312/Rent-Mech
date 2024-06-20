@@ -14,11 +14,7 @@ const App = () => {
           headerShown: false,
         }}
       >
-        <Stack.Screen
-          name="DrawerNavigator"
-          component={DrawerNavigator}
-          options={{ title: "Rent Mech" }}
-        />
+        <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

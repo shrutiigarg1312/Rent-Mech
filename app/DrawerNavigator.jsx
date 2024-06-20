@@ -9,6 +9,7 @@ import {
 
 import HomeScreen from "./screens/home.jsx";
 import LoginModal from "./modals/LoginModal.jsx";
+import SignupModal from "./modals/SignupModal.jsx";
 import OrdersScreen from "./screens/orders.jsx";
 import NewItemsScreen from "./screens/equipments.jsx";
 import { AuthContextProvider, useAuth } from "./context/AuthContext.jsx";
@@ -39,6 +40,7 @@ const DrawerNavigator = () => {
         <Drawer.Screen name="Orders" component={OrdersScreen} />
       </Drawer.Navigator>
       <LoginModalWrapper />
+      <SignupModalWrapper />
     </AuthContextProvider>
   );
 };
@@ -63,6 +65,12 @@ const LoginModalWrapper = () => {
   const { isLoginModalVisible } = useAuth();
 
   return isLoginModalVisible ? <LoginModal /> : null;
+};
+
+const SignupModalWrapper = () => {
+  const { isSignupModalVisible } = useAuth();
+
+  return isSignupModalVisible ? <SignupModal /> : null;
 };
 
 export default DrawerNavigator;
