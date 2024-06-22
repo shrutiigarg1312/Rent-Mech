@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  View,
-  FlatList,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Pressable,
-} from "react-native";
+import { View, FlatList, Text, Dimensions, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import qs from "qs";
+import { useFocusEffect } from "@react-navigation/native";
 
 import Header from "../../components/Header";
 import GridView from "../../components/GridView";
@@ -19,7 +12,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import { useLocation } from "../context/LocationContext";
 
 const NewItemsScreen = ({ route, navigation }) => {
-  const { category } = route.params;
+  const { productName } = route.params;
   const { selectedLocation } = useLocation();
 
   const [key, setKey] = useState(Date.now());
@@ -31,6 +24,54 @@ const NewItemsScreen = ({ route, navigation }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  //Fetch Data from API
+  const fetchNewItems = async () => {
+    try {
+      const data = qs.stringify({
+        productName: productName,
+        location: selectedLocation, // You may adjust location as needed
+      });
+
+      const headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+
+      const response = await axios.post(
+        "https://rentmech.onrender.com/getEquipments",
+        data,
+        headers
+      );
+      console.log("API call result:", response.data);
+      if (response.data.success) {
+        setNewItems(response.data.equipments); // Update state with the new items
+      }
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 404) {
+          console.error(
+            "Error 404: No items found for the given Product name and location."
+          );
+          setNewItems([]);
+        } else {
+          console.error("Error fetching items:", error.response.data);
+          setNewItems([]);
+        }
+      } else {
+        console.error("Network or other error:", error.message);
+        setNewItems([]); // Handle network or other errors
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setLoading(true); // Reset loading state
+      fetchNewItems();
+    }, [productName, selectedLocation])
+  );
+
   useEffect(() => {
     //To change the no of columns dynamically
     const updateColumns = () => {
@@ -41,37 +82,6 @@ const NewItemsScreen = ({ route, navigation }) => {
     };
     Dimensions.addEventListener("change", updateColumns);
     updateColumns();
-
-    //Fetch Data from API
-    const fetchNewItems = async () => {
-      try {
-        console.log(selectedLocation);
-        const data = qs.stringify({
-          productName: "Earthmover",
-          location: selectedLocation, // You may adjust location as needed
-        });
-
-        const headers = {
-          "Content-Type": "application/x-www-form-urlencoded",
-        };
-
-        const response = await axios.post(
-          "https://rentmech.onrender.com/getEquipments",
-          data,
-          headers
-        );
-        console.log("API call result:", response.data);
-        if (response.data.success) {
-          setNewItems(response.data.equipments); // Update state with the new items
-        }
-      } catch (error) {
-        console.error("Error fetching items:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNewItems();
 
     // Clean-up function
     return () => {
@@ -96,13 +106,19 @@ const NewItemsScreen = ({ route, navigation }) => {
         </Pressable>
         <View className="flex-1 items-center">
           <Text className="text-xl font-semibold text-black">
-            {category}s Available
+            {productName}s Available
           </Text>
         </View>
       </View>
       <View style={{ zIndex: -5 }} className="flex-1 items-center">
         {loading ? (
           <LoadingSpinner />
+        ) : newItems.length === 0 ? (
+          <View className="px-10 mt-8">
+            <Text className="text-lg font-semibold">
+              Sorry! no {productName} available at {selectedLocation}
+            </Text>
+          </View>
         ) : (
           <FlatList
             data={newItems}

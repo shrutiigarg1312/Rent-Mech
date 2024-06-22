@@ -38,8 +38,7 @@ const HomeScreen = ({ navigation }) => {
 
   // Navigate when item is pressed
   const itemPress = (item) => {
-    console.log("item pressed: ", item.type);
-    navigation.navigate("Equipments", { category: item.type });
+    navigation.navigate("Equipments", { productName: item.type });
   };
 
   const renderItem = ({ item }) => {
