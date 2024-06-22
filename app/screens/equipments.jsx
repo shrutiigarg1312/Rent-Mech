@@ -22,7 +22,7 @@ const NewItemsScreen = ({ route, navigation }) => {
 
   const [newItems, setNewItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [purchaseModalVisible, setPurchaseModalVisible] = useState(false);
 
   //Fetch Data from API
   const fetchNewItems = async () => {
@@ -89,11 +89,6 @@ const NewItemsScreen = ({ route, navigation }) => {
     };
   }, []);
 
-  const handleBuyPress = (item) => {
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-
   return (
     <View className="flex-1">
       <Header />
@@ -123,7 +118,11 @@ const NewItemsScreen = ({ route, navigation }) => {
           <FlatList
             data={newItems}
             renderItem={({ item }) => (
-              <GridView item={item} onBuyPress={handleBuyPress} />
+              <GridView
+                item={item}
+                setSelectedItem={setSelectedItem}
+                setPurchaseModalVisible={setPurchaseModalVisible}
+              />
             )}
             keyExtractor={(item) => item._id}
             numColumns={numColumns}
@@ -134,8 +133,8 @@ const NewItemsScreen = ({ route, navigation }) => {
       </View>
       {selectedItem && (
         <PurchaseModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
+          modalVisible={purchaseModalVisible}
+          setModalVisible={setPurchaseModalVisible}
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
           navigation={navigation}

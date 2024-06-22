@@ -2,7 +2,13 @@ import "react-native-gesture-handler";
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { NativeWindStyleSheet } from "nativewind";
 import DrawerNavigator from "./DrawerNavigator";
+
+//For supporting NativeWind on web
+NativeWindStyleSheet.setOutput({
+  default: "native",
+});
 
 const Stack = createStackNavigator();
 
