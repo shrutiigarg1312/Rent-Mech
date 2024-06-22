@@ -67,7 +67,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View className="flex-1 bg-gray ">
       <Header />
-      <View className=" flex-1 items-center">
+      <View style={{ zIndex: -5 }} className=" flex-1 items-center">
         <FlatList
           data={equipments}
           renderItem={renderItem}

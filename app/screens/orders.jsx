@@ -73,7 +73,10 @@ const OrdersScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView className="flex-1">
       <Header />
-      <View className="w-full pb-4 pl-6 mb-2 bg-gray items-center flex-row">
+      <View
+        style={{ zIndex: -2 }}
+        className="w-full pb-4 pl-6 pt-3 mb-2 bg-gray items-center flex-row"
+      >
         <Pressable onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={18} color="#212121" />
         </Pressable>
@@ -81,7 +84,7 @@ const OrdersScreen = ({ route, navigation }) => {
           <Text className="text-xl font-semibold text-black">My Orders</Text>
         </View>
       </View>
-      <View className="flex-1 p-5 items-center">
+      <View style={{ zIndex: -5 }} className="flex-1 p-5 items-center">
         {loading ? (
           <LoadingSpinner />
         ) : newOrders.length === 0 ? (

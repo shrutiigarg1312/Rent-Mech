@@ -13,34 +13,37 @@ import SignupModal from "./modals/SignupModal.jsx";
 import OrdersScreen from "./screens/orders.jsx";
 import NewItemsScreen from "./screens/equipments.jsx";
 import { AuthContextProvider, useAuth } from "./context/AuthContext.jsx";
+import { LocationProvider } from "./context/LocationContext.jsx";
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   return (
     <AuthContextProvider>
-      <Drawer.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-        drawerContent={(props) => <CustomDrawerContent {...props} />}
-      >
-        <Drawer.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ drawerLabel: "Home" }}
-        />
-        <Drawer.Screen
-          name="Equipments"
-          component={NewItemsScreen}
-          options={{
-            drawerItemStyle: { display: "none" },
+      <LocationProvider>
+        <Drawer.Navigator
+          screenOptions={{
+            headerShown: false,
           }}
-        />
-        <Drawer.Screen name="Orders" component={OrdersScreen} />
-      </Drawer.Navigator>
-      <LoginModalWrapper />
-      <SignupModalWrapper />
+          drawerContent={(props) => <CustomDrawerContent {...props} />}
+        >
+          <Drawer.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ drawerLabel: "Home" }}
+          />
+          <Drawer.Screen
+            name="Equipments"
+            component={NewItemsScreen}
+            options={{
+              drawerItemStyle: { display: "none" },
+            }}
+          />
+          <Drawer.Screen name="Orders" component={OrdersScreen} />
+        </Drawer.Navigator>
+        <LoginModalWrapper />
+        <SignupModalWrapper />
+      </LocationProvider>
     </AuthContextProvider>
   );
 };

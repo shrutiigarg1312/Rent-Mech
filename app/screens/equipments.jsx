@@ -16,9 +16,11 @@ import Header from "../../components/Header";
 import GridView from "../../components/GridView";
 import PurchaseModal from "../modals/PurchaseModal";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { useLocation } from "../context/LocationContext";
 
 const NewItemsScreen = ({ route, navigation }) => {
   const { category } = route.params;
+  const { selectedLocation } = useLocation();
 
   const [key, setKey] = useState(Date.now());
   const [numColumns, setNumColumns] = useState(1);
@@ -43,9 +45,10 @@ const NewItemsScreen = ({ route, navigation }) => {
     //Fetch Data from API
     const fetchNewItems = async () => {
       try {
+        console.log(selectedLocation);
         const data = qs.stringify({
           productName: "Earthmover",
-          location: "Kanpur", // You may adjust location as needed
+          location: selectedLocation, // You may adjust location as needed
         });
 
         const headers = {
@@ -84,7 +87,10 @@ const NewItemsScreen = ({ route, navigation }) => {
   return (
     <View className="flex-1">
       <Header />
-      <View className="w-full pb-4 pl-6 mb-2 bg-gray items-center flex-row">
+      <View
+        style={{ zIndex: -5 }}
+        className="w-full pb-4 pl-6 mb-3 pt-3 bg-gray items-center flex-row"
+      >
         <Pressable onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={18} color="#212121" />
         </Pressable>
@@ -94,7 +100,7 @@ const NewItemsScreen = ({ route, navigation }) => {
           </Text>
         </View>
       </View>
-      <View className="flex-1 items-center">
+      <View style={{ zIndex: -5 }} className="flex-1 items-center">
         {loading ? (
           <LoadingSpinner />
         ) : (

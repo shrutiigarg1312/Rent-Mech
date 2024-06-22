@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import qs from "qs";
 import { useAuth } from "../context/AuthContext";
+import { useLocation } from "../context/LocationContext";
 
 const PurchaseModal = ({
   modalVisible,
@@ -28,10 +29,11 @@ const PurchaseModal = ({
     productName: "",
     address: "",
   });
-
+  const { selectedLocation } = useLocation();
   const { authData } = useAuth();
 
   console.log(authData);
+  console.log(selectedLocation);
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -40,7 +42,7 @@ const PurchaseModal = ({
   const handleSubmit = () => {
     const orderData = qs.stringify({
       productName: selectedItem.productName,
-      location: formData.location,
+      location: selectedLocation,
       email: authData.email,
       rent: selectedItem.rent,
       date: formData.date,
@@ -83,12 +85,6 @@ const PurchaseModal = ({
             </Text>
           </View>
           <View style={styles.body}>
-            <TextInput
-              style={styles.input}
-              placeholder="Location"
-              value={formData.location}
-              onChangeText={(text) => handleInputChange("location", text)}
-            />
             <input
               type="date"
               value={formData.date}
