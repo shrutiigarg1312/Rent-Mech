@@ -8,6 +8,8 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthContextProvider = ({ children }) => {
   const [isLoginModalVisible, setLoginModalVisible] = useState(false);
   const [isSignupModalVisible, setSignupModalVisible] = useState(false);
+  const [isForgotPasswordModalVisible, setForgotPasswordModalVisible] =
+    useState(false);
   const [authData, setAuthData] = useState(null);
 
   const openLoginModal = () => {
@@ -26,6 +28,14 @@ export const AuthContextProvider = ({ children }) => {
     setSignupModalVisible(false);
   };
 
+  const openForgotPasswordModal = () => {
+    setForgotPasswordModalVisible(true);
+  };
+
+  const closeForgotPasswordModal = () => {
+    setForgotPasswordModalVisible(false);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -35,6 +45,9 @@ export const AuthContextProvider = ({ children }) => {
         isSignupModalVisible,
         openSignupModal,
         closeSignupModal,
+        isForgotPasswordModalVisible,
+        openForgotPasswordModal,
+        closeForgotPasswordModal,
         authData,
         setAuthData,
       }}

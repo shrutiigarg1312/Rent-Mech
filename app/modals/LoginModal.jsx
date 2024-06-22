@@ -11,8 +11,13 @@ import {
 import { useAuth } from "../context/AuthContext";
 
 const LoginModal = () => {
-  const { isLoginModalVisible, closeLoginModal, openSignupModal, setAuthData } =
-    useAuth();
+  const {
+    isLoginModalVisible,
+    closeLoginModal,
+    openForgotPasswordModal,
+    openSignupModal,
+    setAuthData,
+  } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,6 +81,11 @@ const LoginModal = () => {
     openSignupModal();
   };
 
+  const handleForgotPasswordPress = () => {
+    closeLoginModal();
+    openForgotPasswordModal();
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -104,6 +114,19 @@ const LoginModal = () => {
               onChangeText={setPassword}
               secureTextEntry
             />
+            <Pressable onPress={handleForgotPasswordPress}>
+              <Text
+                style={{
+                  padding: 5,
+                  marginBottom: 10,
+                  color: "blue",
+                  textDecorationLine: "underline",
+                  fontSize: 13,
+                }}
+              >
+                Forgot Password?
+              </Text>
+            </Pressable>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
@@ -130,7 +153,6 @@ const LoginModal = () => {
                 Don't have an account?{" "}
                 <Text
                   style={{ color: "blue", textDecorationLine: "underline" }}
-                  onPress={handleSignupPress} // This opens the signup modal
                 >
                   Sign Up
                 </Text>
@@ -198,14 +220,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   errorText: {
+    padding: 10,
     color: "red",
-    marginBottom: 10,
+    textAlign: "center",
   },
   signup: {
     flex: 1,
     alignItems: "center",
-    marginTop: 15,
-    fontSize: 30,
+    marginTop: 10,
   },
 });
 
