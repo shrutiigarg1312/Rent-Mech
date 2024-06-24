@@ -17,10 +17,13 @@ import { useFocusEffect } from "@react-navigation/native";
 import { DrawerActions } from "@react-navigation/native";
 import Header from "../../components/Header";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { useAuth } from "../context/AuthContext";
 
 const OrdersScreen = ({ route, navigation }) => {
   const [newOrders, setNewOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { authData } = useAuth();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -35,7 +38,7 @@ const OrdersScreen = ({ route, navigation }) => {
     const fetchOrders = async () => {
       try {
         const data = qs.stringify({
-          email: "1234@test",
+          email: authData.email,
         });
 
         const headers = {
