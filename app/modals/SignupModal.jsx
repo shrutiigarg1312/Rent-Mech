@@ -49,8 +49,8 @@ const SignupModal = () => {
       const data = await response.json();
       console.log("API call result:", data);
       if (!data.success) {
-        if (data.msg == "Email already registered") {
-          setError("Email already registered");
+        if (data.msg == "Email already exists") {
+          setError("Email already exists");
         } else {
           setError("Failed to create an account contact support");
         }
