@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Modal,
   View,
   Text,
   TextInput,
   StyleSheet,
-  Alert,
   Pressable,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
-import { useNavigation } from "expo-router";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const ForgotPasswordModal = () => {
   const {
@@ -18,17 +17,37 @@ const ForgotPasswordModal = () => {
     openLoginModal,
   } = useAuth();
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [otpNumber, setOtpNumber] = useState("");
   const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [resendEnabled, setResendEnabled] = useState(false);
+  const [timer, setTimer] = useState(0);
 
-  const navigation = useNavigation();
+  const generatedOtpRef = useRef(null);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (timer > 0) {
+      timerRef.current = setTimeout(() => setTimer(timer - 1), 1000);
+    } else {
+      clearTimeout(timerRef.current);
+      setResendEnabled(true);
+    }
+    return () => clearTimeout(timerRef.current);
+  }, [timer]);
+
+  const startTimer = () => {
+    setTimer(30); // Set timer for 30 seconds
+    setResendEnabled(false);
+  };
 
   const handleSendOTP = async () => {
-    // Generate a random number between 100000 and 999999
-    const OTP = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtpNumber(OTP);
-    console.log(otpNumber);
+    setLoading(true);
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    generatedOtpRef.current = generatedOtp;
     try {
       const mailResponse = await fetch(
         "https://rmmail.onrender.com/send-email",
@@ -40,21 +59,38 @@ const ForgotPasswordModal = () => {
           body: new URLSearchParams({
             to: email,
             subject: "OTP for password change",
-            text: otpNumber,
+            text: generatedOtp,
           }).toString(),
         }
       );
+      setStep(2);
     } catch (error) {
       console.error("OTP request failed:", error);
+    } finally {
+      startTimer();
+      setLoading(false);
     }
   };
 
-  const handleSubmit = () => {
-    if (otp === otpNumber) {
+  const handleResendOTP = async () => {
+    if (!resendEnabled) return;
+    handleSendOTP();
+  };
 
-    }
-    else {
+  const handleSubmitOTP = () => {
+    if (otp === generatedOtpRef.current) {
+      setStep(3);
+    } else {
       setError("Wrong OTP");
+    }
+  };
+
+  const handleChangePassword = () => {
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+    } else {
+      // Handle password change logic here
+      closeForgotPasswordModal();
     }
   };
 
@@ -65,7 +101,6 @@ const ForgotPasswordModal = () => {
 
   return (
     <Modal
-      animationType="slide"
       transparent={true}
       visible={isForgotPasswordModalVisible}
       onRequestClose={closeForgotPasswordModal}
@@ -76,33 +111,72 @@ const ForgotPasswordModal = () => {
             <Text style={styles.headerText}>Forgotten Password?</Text>
           </View>
           <View style={styles.body}>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="OTP"
-              value={otp}
-              onChangeText={setOtp}
-              keyboardType="OTP"
-              autoCapitalize="none"
-            />
+            {loading && <LoadingSpinner />}
+            {!loading && step === 1 && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <Pressable style={styles.button} onPress={handleSendOTP}>
+                  <Text style={styles.buttonText}>Send OTP</Text>
+                </Pressable>
+              </>
+            )}
+            {!loading && step === 2 && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="OTP"
+                  value={otp}
+                  onChangeText={setOtp}
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                />
+                <Pressable style={styles.button} onPress={handleSubmitOTP}>
+                  <Text style={styles.buttonText}>Submit OTP</Text>
+                </Pressable>
+                <Text style={styles.timerText}>
+                  {resendEnabled ? (
+                    <Pressable onPress={handleResendOTP}>
+                      <Text style={styles.resendText}>Resend OTP</Text>
+                    </Pressable>
+                  ) : (
+                    `Resend OTP in ${timer} seconds`
+                  )}
+                </Text>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                />
+                <Pressable style={styles.button} onPress={handleChangePassword}>
+                  <Text style={styles.buttonText}>Change Password</Text>
+                </Pressable>
+              </>
+            )}
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
-            <Pressable style={styles.button} onPress={handleSendOTP}>
-              <Text style={styles.buttonText}>Send OTP</Text>
-            </Pressable>
-            <Pressable style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Submit</Text>
-            </Pressable>
             <Pressable style={styles.back} onPress={handleGoBack}>
-              <Text>Go back</Text>
+              <Text style={styles.backText}>Go back</Text>
             </Pressable>
           </View>
         </View>
@@ -144,24 +218,34 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
   },
-  footer: {
-    marginTop: 20,
-  },
   button: {
     width: "100%",
     padding: 10,
     alignItems: "center",
     borderRadius: 5,
     backgroundColor: "#0077C0",
+    marginVertical: 10,
   },
   buttonText: {
     color: "white",
     fontWeight: "bold",
   },
+  timerText: {
+    paddingHorizontal: 2,
+    marginBottom: 10,
+    color: "#0077C0",
+  },
+  resendText: {
+    color: "blue",
+    textDecorationLine: "underline",
+  },
   back: {
-    marginTop: 10,
-    padding: 10,
     alignItems: "center",
+    marginTop: 5,
+  },
+  backText: {
+    color: "blue",
+    textDecorationLine: "underline",
   },
   errorText: {
     padding: 10,
