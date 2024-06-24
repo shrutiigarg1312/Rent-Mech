@@ -45,6 +45,11 @@ const ForgotPasswordModal = () => {
   };
 
   const handleSendOTP = async () => {
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     generatedOtpRef.current = generatedOtp;
@@ -66,8 +71,11 @@ const ForgotPasswordModal = () => {
       setStep(2);
     } catch (error) {
       console.error("OTP request failed:", error);
+      setError(error.message);
+      setStep(1);
     } finally {
       startTimer();
+      setError("");
       setLoading(false);
     }
   };
@@ -78,15 +86,22 @@ const ForgotPasswordModal = () => {
   };
 
   const handleSubmitOTP = () => {
+    if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+      setError("Please enter a valid 6-digit OTP.");
+      return;
+    }
+
     if (otp === generatedOtpRef.current) {
       setStep(3);
     } else {
-      setError("Wrong OTP");
+      setError("Entered OTP is incorrect.");
     }
   };
 
   const handleChangePassword = () => {
-    if (newPassword !== confirmPassword) {
+    if (!newPassword || !confirmPassword) {
+      setError("Please enter a new password and confirm it.");
+    } else if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
     } else {
       // Handle password change logic here
@@ -97,6 +112,10 @@ const ForgotPasswordModal = () => {
   const handleGoBack = () => {
     closeForgotPasswordModal();
     openLoginModal();
+  };
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   return (
@@ -122,6 +141,7 @@ const ForgotPasswordModal = () => {
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
                 <Pressable style={styles.button} onPress={handleSendOTP}>
                   <Text style={styles.buttonText}>Send OTP</Text>
                 </Pressable>
@@ -137,6 +157,7 @@ const ForgotPasswordModal = () => {
                   keyboardType="numeric"
                   autoCapitalize="none"
                 />
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
                 <Pressable style={styles.button} onPress={handleSubmitOTP}>
                   <Text style={styles.buttonText}>Submit OTP</Text>
                 </Pressable>
@@ -167,12 +188,12 @@ const ForgotPasswordModal = () => {
                   onChangeText={setConfirmPassword}
                   secureTextEntry
                 />
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
                 <Pressable style={styles.button} onPress={handleChangePassword}>
                   <Text style={styles.buttonText}>Change Password</Text>
                 </Pressable>
               </>
             )}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
             <Pressable style={styles.back} onPress={handleGoBack}>
