@@ -50,10 +50,8 @@ const LoginModal = () => {
       console.log("API call result:", data.success);
       if (!data.success) {
         if (data.msg == "User not found") {
-          // throw new Error('User not found');
           setError("User not found");
         } else {
-          // throw new Error('Wrong email or password');
           setError("Wrong email or password");
         }
       } else {

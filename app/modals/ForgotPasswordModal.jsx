@@ -54,6 +54,18 @@ const ForgotPasswordModal = () => {
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     generatedOtpRef.current = generatedOtp;
     try {
+      const otpMail = `
+            We received a request to reset your password. Use the following OTP to complete the process:
+
+            OTP: ${generatedOtp}
+
+            This code is valid for 60 minutes. If you didn't request a password change, please ignore this email.
+
+            Thank you,
+            Rent-Mech Support Team
+            support@rentmech.com
+            rentmech.in
+            `;
       const mailResponse = await fetch(
         "https://rmmail.onrender.com/send-email",
         {
@@ -64,7 +76,7 @@ const ForgotPasswordModal = () => {
           body: new URLSearchParams({
             to: email,
             subject: "OTP for password change",
-            text: generatedOtp,
+            text: otpMail,
           }).toString(),
         }
       );
@@ -98,13 +110,35 @@ const ForgotPasswordModal = () => {
     }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (!newPassword || !confirmPassword) {
       setError("Please enter a new password and confirm it.");
     } else if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
     } else {
       // Handle password change logic here
+      try {
+        const updatePassword = await fetch(
+          "https://rentmech.onrender.com/update",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              email: email,
+              password: newPassword,
+            }).toString(),
+          }
+        );
+        const data = await response.json();
+        //Redirect to signup page if this condition is true
+        if (data.msg == "Email not found") {
+          setError("Email not found");
+        }
+      } catch {
+        console.error(error);
+      }
       closeForgotPasswordModal();
     }
   };
