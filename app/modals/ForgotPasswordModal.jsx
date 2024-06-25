@@ -15,6 +15,7 @@ const ForgotPasswordModal = () => {
     isForgotPasswordModalVisible,
     closeForgotPasswordModal,
     openLoginModal,
+    openSignupModal,
   } = useAuth();
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -44,13 +45,56 @@ const ForgotPasswordModal = () => {
     setResendEnabled(false);
   };
 
+  const handleSignupPress = () => {
+    closeForgotPasswordModal();
+    openSignupModal();
+  };
+
   const handleSendOTP = async () => {
-    if (!validateEmail(email)) {
+    setLoading(true);
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      console.log("wrong");
       setError("Please enter a valid email address.");
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    try {
+      const validateEmailResponse = await fetch(
+        "https://rentmech.onrender.com/check-email",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ email }).toString(),
+        }
+      );
+      const validateData = await validateEmailResponse.json();
+      console.log("entered");
+      if (!validateData.exists) {
+        console.log("hello2");
+        setError(
+          <>
+            Email not registered. Please validate or{" "}
+            <Text
+              style={{ textDecorationLine: "underline", color: "blue" }}
+              onPress={handleSignupPress}
+            >
+              Sign Up here
+            </Text>
+            .
+          </>
+        );
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Email validation failed:", error);
+      setError("Failed to validate email. Please try again.");
+      return;
+    }
+
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     generatedOtpRef.current = generatedOtp;
     try {
@@ -102,7 +146,6 @@ const ForgotPasswordModal = () => {
       setError("Please enter a valid 6-digit OTP.");
       return;
     }
-
     if (otp === generatedOtpRef.current) {
       setStep(3);
     } else {
@@ -146,10 +189,6 @@ const ForgotPasswordModal = () => {
   const handleGoBack = () => {
     closeForgotPasswordModal();
     openLoginModal();
-  };
-
-  const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   return (
