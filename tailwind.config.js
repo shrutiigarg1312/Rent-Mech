@@ -12,6 +12,7 @@ module.exports = {
       green: "#2E8B57",
       red: "#D22B2B",
       blackTransparent: "rgba(0, 0, 0, 0.5)",
+      link: "#0000ff",
     },
     extend: {},
   },

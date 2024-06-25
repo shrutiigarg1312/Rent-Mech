@@ -22,8 +22,36 @@ import { useAuth } from "../context/AuthContext";
 const OrdersScreen = ({ route, navigation }) => {
   const [newOrders, setNewOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { authData, openLoginModal } = useAuth();
 
-  const { authData } = useAuth();
+  const fetchOrders = async () => {
+    try {
+      const data = qs.stringify({
+        email: authData.email,
+      });
+
+      const headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+
+      const response = await axios.post(
+        "https://rentmech.onrender.com/getOrders",
+        data,
+        { headers }
+      );
+
+      if (response.data.success) {
+        console.log("Orders:", response.data); // Log the orders
+        setNewOrders(response.data.orders); // Update state with the new orders
+      } else {
+        console.error("Error: ", response.data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -31,46 +59,11 @@ const OrdersScreen = ({ route, navigation }) => {
       if (Platform.OS === "web") {
         navigation.dispatch(DrawerActions.closeDrawer());
       }
-    }, [navigation])
+      setLoading(true);
+      fetchOrders();
+    }, [navigation, authData])
   );
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const data = qs.stringify({
-          email: authData.email,
-        });
-
-        const headers = {
-          "Content-Type": "application/x-www-form-urlencoded",
-        };
-
-        const response = await axios.post(
-          "https://rentmech.onrender.com/getOrders",
-          data,
-          { headers }
-        );
-        console.log("API call result:", response.data);
-        if (response.data.success) {
-          console.log("Orders:", response.data); // Log the orders
-          setNewOrders(response.data.orders); // Update state with the new orders
-        } else {
-          console.error("Error: ", response.data.message || "Unknown error");
-        }
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-
-    // Clean-up function
-    return () => {
-      // Any clean-up code goes here
-    };
-  }, []);
   const image = require("../../assets/images/earthmover.jpg");
 
   return (
@@ -88,7 +81,25 @@ const OrdersScreen = ({ route, navigation }) => {
         </View>
       </View>
       <View style={{ zIndex: -5 }} className="flex-1 p-5 items-center">
-        {loading ? (
+        {authData == null ? (
+          <View className="items-center ">
+            <Text className="text-lg text-center my-4">
+              You must be logged in to view your messages.{" "}
+            </Text>
+            <Pressable
+              onPress={openLoginModal}
+              className="flex-row items-center"
+            >
+              <Text className="text-lg text-link underline">Login</Text>
+              <Ionicons
+                name="log-in-outline"
+                size={20}
+                color="blue"
+                style={styles.loginIcon}
+              />
+            </Pressable>
+          </View>
+        ) : loading ? (
           <LoadingSpinner />
         ) : newOrders.length === 0 ? (
           <Text className="text-lg text-center my-4">No orders available</Text> // Display message if no orders
