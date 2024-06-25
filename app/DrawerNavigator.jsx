@@ -1,11 +1,13 @@
 import "react-native-gesture-handler";
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { View, Text, StyleSheet } from "react-native";
 import {
   DrawerContentScrollView,
   DrawerItemList,
   DrawerItem,
 } from "@react-navigation/drawer";
+import { Ionicons } from "@expo/vector-icons";
 
 import HomeScreen from "./screens/home.jsx";
 import LoginModal from "./modals/LoginModal.jsx";
@@ -51,18 +53,35 @@ const DrawerNavigator = () => {
 };
 
 const CustomDrawerContent = ({ ...props }) => {
-  const { openLoginModal } = useAuth();
+  const { openLoginModal, authData, setauthData } = useAuth();
 
   const handleLoginPress = () => {
     props.navigation.closeDrawer();
     openLoginModal();
   };
 
+  const handleLogoutPress = () => {
+    props.navigation.closeDrawer();
+    setauthData(null);
+  };
+
   return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItemList {...props} />
-      <DrawerItem label="Login" onPress={handleLoginPress} />
-    </DrawerContentScrollView>
+    <View style={styles.container}>
+      {authData ? (
+        <View style={styles.profileSection}>
+          <Ionicons name="person-circle-outline" size={50} color="#212121" />
+          <Text style={styles.profileText}>User Name</Text>
+        </View>
+      ) : null}
+      <DrawerContentScrollView {...props}>
+        <DrawerItemList {...props} />
+        {authData == null ? (
+          <DrawerItem label="Login" onPress={handleLoginPress} />
+        ) : (
+          <DrawerItem label="Logout" onPress={handleLogoutPress} />
+        )}
+      </DrawerContentScrollView>
+    </View>
   );
 };
 
@@ -83,5 +102,23 @@ const ForgotPasswordModalWrapper = () => {
 
   return isForgotPasswordModalVisible ? <ForgotPasswordModal /> : null;
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  profileSection: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  profileText: {
+    marginLeft: 10,
+    fontSize: 18,
+  },
+});
 
 export default DrawerNavigator;
