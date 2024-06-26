@@ -8,6 +8,7 @@ import {
   DrawerItem,
 } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import HomeScreen from "./screens/home.jsx";
 import LoginModal from "./modals/LoginModal.jsx";
@@ -66,7 +67,12 @@ const CustomDrawerContent = ({ ...props }) => {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("authData");
+    } catch (error) {
+      console.error("Failed to remove auth Data", error);
+    }
     setAuthData(null);
     setShowLogoutModal(false);
   };

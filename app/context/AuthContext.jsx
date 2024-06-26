@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Create a context for the login modal state
 const AuthContext = createContext();
@@ -11,6 +12,24 @@ export const AuthContextProvider = ({ children }) => {
   const [isForgotPasswordModalVisible, setForgotPasswordModalVisible] =
     useState(false);
   const [authData, setAuthData] = useState(null);
+
+  useEffect(() => {
+    // Check for existing auth data on app load
+    const checkAuthData = async () => {
+      try {
+        const data = await AsyncStorage.getItem("authData");
+        if (data) {
+          const userData = JSON.parse(data);
+          console.log("authData: " + userData.email);
+          setAuthData(userData);
+        }
+      } catch (error) {
+        console.error("Failed to load auth Data", error);
+      }
+    };
+
+    checkAuthData();
+  }, []);
 
   const openLoginModal = () => {
     setLoginModalVisible(true);

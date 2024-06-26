@@ -8,6 +8,7 @@ import {
   Alert,
   Pressable,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../context/AuthContext";
 
 const LoginModal = () => {
@@ -59,6 +60,13 @@ const LoginModal = () => {
         const { token } = data;
 
         // Update your auth context or state
+
+        try {
+          await AsyncStorage.setItem("authData", JSON.stringify({ email }));
+        } catch (error) {
+          console.error("Failed to store auth Data", error);
+        }
+
         setAuthData({ email });
         console.log(data.token);
         closeLoginModal();

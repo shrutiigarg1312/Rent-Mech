@@ -60,7 +60,9 @@ const OrdersScreen = ({ route, navigation }) => {
         navigation.dispatch(DrawerActions.closeDrawer());
       }
       setLoading(true);
-      fetchOrders();
+      if (authData) {
+        fetchOrders();
+      }
     }, [navigation, authData])
   );
 
