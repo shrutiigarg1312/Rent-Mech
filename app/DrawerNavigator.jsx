@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { View, Text, Modal, Pressable, StyleSheet } from "react-native";
 import {
@@ -9,6 +9,8 @@ import {
 } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import qs from "qs";
 
 import HomeScreen from "./screens/home.jsx";
 import LoginModal from "./modals/LoginModal.jsx";
@@ -53,9 +55,47 @@ const DrawerNavigator = () => {
   );
 };
 
+const fetchUserDetails = async (email) => {
+  try {
+    const data = qs.stringify({
+      email: email,
+    });
+
+    const headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
+
+    const response = await axios.post(
+      "https://rentmech.onrender.com/getUser",
+      data,
+      { headers }
+    );
+    return response.data.user;
+  } catch (error) {
+    console.log("Error fetching user details: ", error);
+  }
+};
+
 const CustomDrawerContent = ({ ...props }) => {
   const { openLoginModal, authData, setAuthData } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [userName, setUserName] = useState();
+
+  useEffect(() => {
+    const loadUserDetails = async () => {
+      if (authData?.email) {
+        try {
+          const userDetails = await fetchUserDetails(authData.email);
+          const userFullName = `${userDetails.firstname} ${userDetails.lastname}`;
+          setUserName(userFullName); // Assuming the API returns an object with a 'name' field
+        } catch (error) {
+          console.error("Failed to fetch user details", error);
+        }
+      }
+    };
+
+    loadUserDetails();
+  }, [authData]);
 
   const handleLoginPress = () => {
     props.navigation.closeDrawer();
@@ -80,12 +120,13 @@ const CustomDrawerContent = ({ ...props }) => {
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
+
   return (
     <View style={styles.container}>
       {authData ? (
         <View style={styles.profileSection}>
           <Ionicons name="person-circle-outline" size={50} color="#212121" />
-          <Text style={styles.profileText}>User Name</Text>
+          <Text style={styles.profileText}>{userName}</Text>
         </View>
       ) : null}
       <DrawerContentScrollView {...props}>

@@ -26,19 +26,24 @@ const GridView = ({ item, setSelectedItem, setPurchaseModalVisible }) => {
         source={image}
         resizeMode="cover"
       />
-      <View className="w-3/5 h-full">
-        <View className="m-2">
-          <Text className="font-semibold text-lg">{item.name}</Text>
+      <View className="w-3/5 h-full p-2">
+        <View>
+          <Text className="font-semibold text-lg">
+            {item.model} {item.company}
+          </Text>
           <View className="flex-row items-center my-2">
-            <Ionicons name="location-sharp" size={16} color="gray" />
+            <Ionicons name="location-sharp" size={14} color="gray" />
             <Text className="ml-1 text-gray-500">{item.location}</Text>
           </View>
+          <View className="my-1">
+            <Text className="text-md font-semibold">
+              Rent: {item.minRent} - {item.maxRent}
+            </Text>
+          </View>
         </View>
-        <View className="absolute left-2 bottom-0">
-          <Text className="text-lg font-semibold">Rent: {item.rent}</Text>
-        </View>
+
         <TouchableOpacity
-          className="bg-primary px-4 py-2 rounded w-16 items-center absolute right-5 bottom-0"
+          className="bg-primary px-4 py-2 rounded w-16 items-center my-2"
           onPress={() => handleRentPress(item)}
         >
           <Text className="text-white font-bold">Rent</Text>
@@ -51,7 +56,7 @@ const GridView = ({ item, setSelectedItem, setPurchaseModalVisible }) => {
 const styles = StyleSheet.create({
   wrapperCustom: {
     width: 350,
-    height: 150,
+    height: 160,
   },
   shadowProp: {
     shadowColor: "rgb(0, 0, 0)",

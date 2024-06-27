@@ -115,7 +115,7 @@ const OrdersScreen = ({ route, navigation }) => {
               >
                 <View className="self-center">
                   <Text className="text-lg font-semibold text-black mb-3">
-                    Product: {item.productName}
+                    {item.productName}: {item.model} {item.company}
                   </Text>
                 </View>
                 <View className="flex-1 flex-row justify-between">
@@ -139,14 +139,24 @@ const OrdersScreen = ({ route, navigation }) => {
                     <View className="flex-row mb-2">
                       <Text className="flex-1">Rent </Text>
                       <Text className="font-semibold flex-1">
-                        Rs. {item.rent}
+                        {item.rent === "ND" ? item.rent : `Rs. ${item.rent}`}
                       </Text>
                     </View>
                     <View className="flex-row items-center mt-2">
-                      <Text className="flex-1 font-semibold ">Approval</Text>
-                      <View className="flex-1 bg-red rounded-lg ">
+                      <Text className="flex-1 font-semibold">Staus</Text>
+                      <View
+                        className={`flex-1 rounded-lg ${
+                          item.status === "Placed" || item.status === "Accepted"
+                            ? "bg-primary"
+                            : item.status === "Completed"
+                            ? "bg-green"
+                            : item.status === "Cancelled"
+                            ? "bg-red"
+                            : "bg-red"
+                        }`}
+                      >
                         <Text className="font-semibold text-white px-2 py-1 self-center ">
-                          Pending
+                          {item.status}
                         </Text>
                       </View>
                     </View>

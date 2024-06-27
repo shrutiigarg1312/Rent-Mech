@@ -41,9 +41,11 @@ const PurchaseModal = ({
 
   const handleSubmit = () => {
     const orderData = qs.stringify({
-      productName: selectedItem.productName,
-      location: selectedLocation,
       email: authData.email,
+      location: selectedLocation,
+      productName: selectedItem.productName,
+      model: selectedItem.model,
+      company: selectedItem.company,
       rent: selectedItem.rent,
       date: formData.date,
       duration: `${formData.duration} ${formData.durationUnit}`, // Concatenate duration and unit
