@@ -32,6 +32,7 @@ const PurchaseModal = ({
   });
   const [userAddresses, setUserAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const [selectedAddressLabel, setSelectedAddressLabel] = useState("");
   const { selectedLocation } = useLocation();
   const { authData } = useAuth();
   const [error, setError] = useState(""); // State to hold error message
@@ -55,6 +56,7 @@ const PurchaseModal = ({
           setUserAddresses(data.addresses);
           if (data.addresses.length > 0) {
             setSelectedAddress(data.addresses[0]._id); // Select the first address by default
+            setSelectedAddressLabel(`${data.addresses[0].address}, ${data.addresses[0].pincode}`);
           } else {
             setError("Add an address");
           }
@@ -100,7 +102,7 @@ const PurchaseModal = ({
       rent: selectedItem.rent,
       date: formData.date,
       duration: `${formData.duration} ${formData.durationUnit}`,
-      address: selectedAddress,
+      address: selectedAddressLabel, // Use the label for address
     });
 
     await fetch(API_ENDPOINTS.MAKE_ORDER, {
@@ -172,7 +174,10 @@ const PurchaseModal = ({
             <View style={styles.input}>
               <Picker
                 selectedValue={selectedAddress}
-                onValueChange={(itemValue) => setSelectedAddress(itemValue)}
+                onValueChange={(itemValue, itemIndex) => {
+                  setSelectedAddress(itemValue);
+                  setSelectedAddressLabel(`${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`);
+                }}
               >
                 {userAddresses.map((address) => (
                   <Picker.Item
