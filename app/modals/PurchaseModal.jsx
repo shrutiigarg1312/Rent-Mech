@@ -34,6 +34,7 @@ const PurchaseModal = ({
   const [selectedAddress, setSelectedAddress] = useState(null);
   const { selectedLocation } = useLocation();
   const { authData } = useAuth();
+  const [error, setError] = useState(""); // State to hold error message
 
   useEffect(() => {
     if (authData && authData.email) {
@@ -73,7 +74,23 @@ const PurchaseModal = ({
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+
+    const currentDate = new Date();
+    const selectedDate = new Date(formData.date);
+
+    if (!formData.date) {
+      setError("Enter Date");
+      return;
+    }
+    if (selectedDate < currentDate) {
+      setError("The selected date cannot be in the past.");
+      return;
+    }
+    if (!formData.duration) {
+      setError("Enter Duration");
+      return;
+    }
     const orderData = qs.stringify({
       email: authData.email,
       location: selectedLocation,
@@ -86,7 +103,7 @@ const PurchaseModal = ({
       address: selectedAddress,
     });
 
-    fetch(API_ENDPOINTS.MAKE_ORDER, {
+    await fetch(API_ENDPOINTS.MAKE_ORDER, {
       method: "POST",
       headers: API_HEADERS,
       body: orderData,
@@ -102,6 +119,10 @@ const PurchaseModal = ({
         Alert.alert("Error", "There was a problem with your purchase.");
       });
     navigation.navigate("Orders");
+  };
+
+  const clearError = () => {
+    setError(""); // Clear error message
   };
 
   return (
@@ -162,6 +183,7 @@ const PurchaseModal = ({
                 ))}
               </Picker>
             </View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
             <TouchableOpacity
@@ -256,6 +278,11 @@ const styles = {
   buttonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  errorText: {
+    padding: 10,
+    color: "red",
+    textAlign: "center",
   },
 };
 
