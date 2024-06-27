@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   Modal,
   Alert,
   TouchableOpacity,
-  Picker, // Import Picker component
+  Picker,
 } from "react-native";
 import qs from "qs";
 import { useAuth } from "../context/AuthContext";
@@ -30,9 +30,42 @@ const PurchaseModal = ({
     productName: "",
     address: "",
   });
+  const [userAddresses, setUserAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const { selectedLocation } = useLocation();
   const { authData } = useAuth();
 
+  useEffect(() => {
+    if (authData && authData.email) {
+      // Fetch user addresses when component mounts
+      fetchUserAddresses(authData.email);
+    }
+  }, [authData]);
+
+  const fetchUserAddresses = (email) => {
+    fetch(API_ENDPOINTS.GET_USER_ADDRESSES, {
+      method: "POST",
+      headers: API_HEADERS,
+      body: qs.stringify({ email }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setUserAddresses(data.addresses);
+          if (data.addresses.length > 0) {
+            setSelectedAddress(data.addresses[0]._id); // Select the first address by default
+          } else {
+            setError("Add an address");
+          }
+        } else {
+          Alert.alert("Error", data.msg || "Failed to fetch addresses");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        Alert.alert("Error", "Failed to fetch addresses");
+      });
+  };
   console.log(authData);
   console.log(selectedLocation);
 
@@ -49,7 +82,8 @@ const PurchaseModal = ({
       company: selectedItem.company,
       rent: selectedItem.rent,
       date: formData.date,
-      duration: `${formData.duration} ${formData.durationUnit}`, // Concatenate duration and unit
+      duration: `${formData.duration} ${formData.durationUnit}`,
+      address: selectedAddress,
     });
 
     fetch(API_ENDPOINTS.MAKE_ORDER, {
@@ -112,6 +146,20 @@ const PurchaseModal = ({
                 <Picker.Item label="Days" value="days" />
                 <Picker.Item label="Hours" value="hours" />
                 <Picker.Item label="Months" value="months" />
+              </Picker>
+            </View>
+            <View style={styles.input}>
+              <Picker
+                selectedValue={selectedAddress}
+                onValueChange={(itemValue) => setSelectedAddress(itemValue)}
+              >
+                {userAddresses.map((address) => (
+                  <Picker.Item
+                    key={address._id}
+                    label={`${address.address}, ${address.pincode}`}
+                    value={address._id}
+                  />
+                ))}
               </Picker>
             </View>
           </View>
