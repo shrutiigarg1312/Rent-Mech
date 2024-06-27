@@ -10,6 +10,7 @@ import GridView from "../../components/GridView";
 import PurchaseModal from "../modals/PurchaseModal";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { useLocation } from "../context/LocationContext";
+import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
 const NewItemsScreen = ({ route, navigation }) => {
   const { productName } = route.params;
@@ -32,14 +33,10 @@ const NewItemsScreen = ({ route, navigation }) => {
         location: selectedLocation, // You may adjust location as needed
       });
 
-      const headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-      };
-
       const response = await axios.post(
-        "https://rentmech.onrender.com/getEquipments",
+        API_ENDPOINTS.GET_EQUIPMENTS,
         data,
-        headers
+        API_HEADERS
       );
       console.log("API call result:", response.data);
       if (response.data.success) {

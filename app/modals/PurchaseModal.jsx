@@ -11,6 +11,7 @@ import {
 import qs from "qs";
 import { useAuth } from "../context/AuthContext";
 import { useLocation } from "../context/LocationContext";
+import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
 const PurchaseModal = ({
   modalVisible,
@@ -51,9 +52,9 @@ const PurchaseModal = ({
       duration: `${formData.duration} ${formData.durationUnit}`, // Concatenate duration and unit
     });
 
-    fetch("https://rentmech.onrender.com/makeOrder", {
+    fetch(API_ENDPOINTS.MAKE_ORDER, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: API_HEADERS,
       body: orderData,
     })
       .then((response) => response.json())

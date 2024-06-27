@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../context/AuthContext";
+import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
 const LoginModal = () => {
   const {
@@ -34,19 +35,14 @@ const LoginModal = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "https://rentmech.onrender.com/authenticate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            email,
-            password,
-          }).toString(),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.AUTHENTICATE, {
+        method: "POST",
+        headers: API_HEADERS,
+        body: new URLSearchParams({
+          email,
+          password,
+        }).toString(),
+      });
       const data = await response.json();
       console.log("API call result:", data.success);
       if (!data.success) {

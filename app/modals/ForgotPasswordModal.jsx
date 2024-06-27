@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
 const ForgotPasswordModal = () => {
   const {
@@ -61,18 +62,14 @@ const ForgotPasswordModal = () => {
     }
 
     try {
-      const validateEmailResponse = await fetch(
-        "https://rentmech.onrender.com/check-email",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ email }).toString(),
-        }
-      );
+      const validateEmailResponse = await fetch(API_ENDPOINTS.VALIDATE_USER, {
+        method: "POST",
+        headers: API_HEADERS,
+        body: new URLSearchParams({ email }).toString(),
+      });
       const validateData = await validateEmailResponse.json();
-      console.log("entered");
+
       if (!validateData.exists) {
-        console.log("hello2");
         setError(
           <>
             Email not registered. Please validate or{" "}
@@ -110,20 +107,15 @@ const ForgotPasswordModal = () => {
             support@rentmech.com
             rentmech.in
             `;
-      const mailResponse = await fetch(
-        "https://rmmail.onrender.com/send-email",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            to: email,
-            subject: "OTP for password change",
-            text: otpMail,
-          }).toString(),
-        }
-      );
+      const mailResponse = await fetch(API_ENDPOINTS.SEND_EMAIL, {
+        method: "POST",
+        headers: API_HEADERS,
+        body: new URLSearchParams({
+          to: email,
+          subject: "OTP for password change",
+          text: otpMail,
+        }).toString(),
+      });
       setStep(2);
     } catch (error) {
       console.error("OTP request failed:", error);
@@ -161,19 +153,14 @@ const ForgotPasswordModal = () => {
     } else {
       // Handle password change logic here
       try {
-        const updatePassword = await fetch(
-          "https://rentmech.onrender.com/update",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-              email: email,
-              password: newPassword,
-            }).toString(),
-          }
-        );
+        const updatePassword = await fetch(API_ENDPOINTS.UPDATE_PASSWORD, {
+          method: "POST",
+          headers: API_HEADERS,
+          body: new URLSearchParams({
+            email: email,
+            password: newPassword,
+          }).toString(),
+        });
         const data = await response.json();
         //Redirect to signup page if this condition is true
         if (data.msg == "Email not found") {

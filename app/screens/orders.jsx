@@ -18,6 +18,7 @@ import { DrawerActions } from "@react-navigation/native";
 import Header from "../../components/Header";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { useAuth } from "../context/AuthContext";
+import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
 const OrdersScreen = ({ route, navigation }) => {
   const [newOrders, setNewOrders] = useState([]);
@@ -29,15 +30,10 @@ const OrdersScreen = ({ route, navigation }) => {
       const data = qs.stringify({
         email: authData.email,
       });
-
-      const headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-      };
-
       const response = await axios.post(
-        "https://rentmech.onrender.com/getOrders",
+        API_ENDPOINTS.GET_ORDERS,
         data,
-        { headers }
+        API_HEADERS
       );
 
       if (response.data.success) {

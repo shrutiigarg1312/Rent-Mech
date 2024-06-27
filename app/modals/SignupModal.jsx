@@ -9,6 +9,7 @@ import {
   Pressable,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
+import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
 const SignupModal = () => {
   const { isSignupModalVisible, closeSignupModal, setAuthData } = useAuth();
@@ -22,7 +23,13 @@ const SignupModal = () => {
 
   const handleSignupPress = async () => {
     //function to handle signup and create user account
-    if (!signupEmail || !signupPassword || !signupFirstName || !signupLastName || !signupPhone) {
+    if (
+      !signupEmail ||
+      !signupPassword ||
+      !signupFirstName ||
+      !signupLastName ||
+      !signupPhone
+    ) {
       Alert.alert("Error", "Please enter all Fields");
       setError("Please enter all Fields.");
       return;
@@ -30,22 +37,17 @@ const SignupModal = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        "https://rentmech.onrender.com/adduser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            email: signupEmail,
-            password: signupPassword,
-            firstname: signupFirstName,
-            lastname: signupLastName,
-            phone: signupPhone,
-          }).toString(),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.REGISTER, {
+        method: "POST",
+        headers: API_HEADERS,
+        body: new URLSearchParams({
+          email: signupEmail,
+          password: signupPassword,
+          firstname: signupFirstName,
+          lastname: signupLastName,
+          phone: signupPhone,
+        }).toString(),
+      });
       const data = await response.json();
       console.log("API call result:", data);
       if (!data.success) {
@@ -87,21 +89,17 @@ const SignupModal = () => {
             The RentMech Team
           `;
           console.log(signupEmail);
-          const mailResponse = await fetch(
-            "https://rmmail.onrender.com/send-email",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: new URLSearchParams({
-                to: signupEmail,
-                subject: "Welcome to RentMech – Your Partner in Construction Equipment Rentals!",
-                text: welcomeEmailText,
-              }).toString(),
-            }
-          );
-          const data1 = await mailResponse;
+          const mailResponse = await fetch(API_ENDPOINTS.SEND_EMAIL, {
+            method: "POST",
+            headers: API_HEADERS,
+            body: new URLSearchParams({
+              to: signupEmail,
+              subject:
+                "Welcome to RentMech – Your Partner in Construction Equipment Rentals!",
+              text: welcomeEmailText,
+            }).toString(),
+          });
+          const data1 = mailResponse;
           console.log("API call result:", data1);
         } catch (error) {
           console.error("Welcome mail failed:", error);
@@ -128,7 +126,7 @@ const SignupModal = () => {
             <Text style={styles.headerText}>Sign up</Text>
           </View>
           <View style={styles.body}>
-          <TextInput
+            <TextInput
               style={styles.input}
               placeholder="First Name"
               value={signupFirstName}

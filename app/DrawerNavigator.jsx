@@ -20,6 +20,7 @@ import OrdersScreen from "./screens/orders.jsx";
 import NewItemsScreen from "./screens/equipments.jsx";
 import { AuthContextProvider, useAuth } from "./context/AuthContext.jsx";
 import { LocationProvider } from "./context/LocationContext.jsx";
+import { API_ENDPOINTS, API_HEADERS } from "../config/apiConfig.js";
 
 const Drawer = createDrawerNavigator();
 
@@ -61,15 +62,10 @@ const fetchUserDetails = async (email) => {
       email: email,
     });
 
-    const headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-
-    const response = await axios.post(
-      "https://rentmech.onrender.com/getUser",
-      data,
-      { headers }
-    );
+    const response = await axios.post(API_ENDPOINTS.GET_USER, data, {
+      headers: API_HEADERS,
+    });
+    console.log(response);
     return response.data.user;
   } catch (error) {
     console.log("Error fetching user details: ", error);
