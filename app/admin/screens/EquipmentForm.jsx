@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 import qs from "qs";
+import VendorRegisterModal from "../modals/VendorRegisterModal";
 
 const EquipmentForm = ({ navigation }) => {
   const [form, setForm] = useState({
@@ -15,12 +16,17 @@ const EquipmentForm = ({ navigation }) => {
     rent: "",
   });
   const [error, setError] = useState("");
-
+  const [vendorRegisterModalVisible, setVendorRegisterModalVisible] =
+    useState(false);
   const handleChange = (key, value) => {
     setForm({
       ...form,
       [key]: value,
     });
+  };
+
+  const handleVendorRegisterPress = () => {
+    setVendorRegisterModalVisible(true);
   };
 
   const handleSubmit = async () => {
@@ -44,8 +50,19 @@ const EquipmentForm = ({ navigation }) => {
       });
       const data = await response.json();
       if (!data.success) {
-        if (data.msg == "User not found") {
-          setError("EquipmentsDetail with this ID already exists");
+        if (data.msg === "Vendor with this email does not exist") {
+          setError(
+            <>
+              Vendor email does not exist.{" "}
+              <Text
+                style={{ textDecorationLine: "underline", color: "blue" }}
+                onPress={handleVendorRegisterPress}
+              >
+                Register new vendor
+              </Text>
+              .
+            </>
+          );
         } else {
           setError(data.msg);
         }
@@ -58,7 +75,7 @@ const EquipmentForm = ({ navigation }) => {
   };
 
   return (
-    <View className="flex-1 bg-gray">
+    <View className="flex-1">
       <Header />
       <View
         style={{ zIndex: -5 }}
@@ -73,26 +90,27 @@ const EquipmentForm = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <View className="p-10 flex-1 items-center">
-        {Object.keys(form).map(
-          (key) =>
-            key !== "id" && (
-              <View key={key} style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  value={String(form[key])}
-                  placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-                  onChangeText={(text) => handleChange(key, text)}
-                  keyboardType={
-                    key === "phone" || key === "totalQuantity"
-                      ? "numeric"
-                      : "default"
-                  }
-                />
-              </View>
-            )
-        )}
+      <View style={{ zIndex: -5 }} className="p-10 flex-1 items-center">
+        {Object.keys(form).map((key) => (
+          <View key={key} style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={String(form[key])}
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+              onChangeText={(text) => handleChange(key, text)}
+              keyboardType={
+                key === "phone" || key === "totalQuantity"
+                  ? "numeric"
+                  : "default"
+              }
+            />
+          </View>
+        ))}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <VendorRegisterModal
+          visible={vendorRegisterModalVisible}
+          onClose={() => setVendorRegisterModalVisible(false)}
+        />
         <Pressable
           className="bg-primary items-center p-2 rounded-lg my-4 w-24"
           onPress={handleSubmit}
@@ -112,7 +130,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 4,
+    borderRadius: 8,
     padding: 8,
     fontSize: 16,
     marginBottom: 8,

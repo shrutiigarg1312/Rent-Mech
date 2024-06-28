@@ -10,7 +10,8 @@ import ForgotPasswordModal from "./modals/ForgotPasswordModal.jsx";
 import OrdersScreen from "./screens/orders.jsx";
 import NewItemsScreen from "./screens/equipments.jsx";
 import CustomDrawerContent from "./CustomDrawerComponent.jsx";
-import EquipmentForm from "./screens/admin/EquipmentForm.jsx";
+import EquipmentForm from "./admin/screens/EquipmentForm.jsx";
+import OrdersApproval from "./admin/screens/OrdersApproval.jsx";
 
 import { AuthContextProvider, useAuth } from "./context/AuthContext.jsx";
 import { LocationProvider } from "./context/LocationContext.jsx";
