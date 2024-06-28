@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   GET_EQUIPMENTS: `${API_BASE_URL}/getEquipments`,
   ADD_EQUIPMENT: `${API_BASE_URL}/addEquipment`,
   GET_ORDERS: `${API_BASE_URL}/getOrders`,
+  GET_ORDERS_BY_STATUS: `${API_BASE_URL}/getOrdersByStatus`,
   MAKE_ORDER: `${API_BASE_URL}/makeOrder`,
   GET_USER_ADDRESSES: `${API_BASE_URL}/getUserAddresses`,
   ADD_EQUIPMENT_Detail: `${API_BASE_URL}/addEquipmentsDetail`,

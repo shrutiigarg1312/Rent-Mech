@@ -101,14 +101,21 @@ const CustomDrawerContent = ({ ...props }) => {
           <>
             <DrawerItem label="Admin" onPress={toggleAdminDropdown} />
             {showAdminDropdown && (
-              <View style={styles.adminDropdown}>
+              <View style={{ flex: 1 }}>
                 <DrawerItem
                   label="Add Equipments"
                   onPress={() => {
                     props.navigation.navigate("Admin", {
                       screen: "EquipmentForm",
                     });
-                    setShowAdminDropdown(false);
+                  }}
+                />
+                <DrawerItem
+                  label="All Orders"
+                  onPress={() => {
+                    props.navigation.navigate("Admin", {
+                      screen: "OrdersApproval",
+                    });
                   }}
                 />
               </View>

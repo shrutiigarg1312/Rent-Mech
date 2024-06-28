@@ -23,12 +23,18 @@ const AdminStackNavigator = () => (
   <Stack.Navigator
     screenOptions={{
       headerShown: false,
+      cardStyle: { flex: 1 },
     }}
   >
     <Stack.Screen
       name="EquipmentForm"
       component={EquipmentForm}
       options={{ title: "Add Equipment" }}
+    />
+    <Stack.Screen
+      name="OrdersApproval"
+      component={OrdersApproval}
+      options={{ title: "All orders" }}
     />
     {/* Add more admin pages here */}
   </Stack.Navigator>
