@@ -3,18 +3,16 @@ import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
+import qs from "qs";
 
 const EquipmentForm = ({ navigation }) => {
   const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    address: "",
+    email: "",
     location: "",
     productName: "",
     model: "",
     company: "",
     rent: "",
-    totalQuantity: "",
   });
   const [error, setError] = useState("");
 
@@ -26,7 +24,37 @@ const EquipmentForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    //code to handle submit here
+    console.log(form.email);
+    const equipmentData = qs.stringify({
+      email: form.email,
+      location: form.location,
+      productName: form.productName,
+      model: form.model,
+      company: form.company,
+      rent: form.rent,
+      totalQuantity: 1,
+      availableQuantity: 1,
+    });
+
+    try {
+      const response = await fetch(API_ENDPOINTS.ADD_EQUIPMENT_Detail, {
+        method: "POST",
+        headers: API_HEADERS,
+        body: equipmentData,
+      });
+      const data = await response.json();
+      if (!data.success) {
+        if (data.msg == "User not found") {
+          setError("EquipmentsDetail with this ID already exists");
+        } else {
+          setError(data.msg);
+        }
+      } else {
+        setError("Saved");
+      }
+    } catch (error) {
+      console.error("Saved Failed", error);
+    }
   };
 
   return (
