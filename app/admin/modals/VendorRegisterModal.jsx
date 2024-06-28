@@ -7,6 +7,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import qs from "qs";
+import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 
 const VendorRegisterModal = ({ visible, onClose }) => {
   const [formData, setFormData] = useState({
@@ -24,11 +26,34 @@ const VendorRegisterModal = ({ visible, onClose }) => {
     });
   };
 
-  const handleSubmit = () => {
-    //code to add new vendor
-
+  const handleSubmit = async () => {
+    if(!formData.email || !formData.name || !formData.phone || !formData.address) {
+      setError("Enter all Fields");
+      return;
+    }
+    const vendorData = qs.stringify({
+      email: formData.email,
+      name: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+    });
+    try {
+      const response = await fetch(API_ENDPOINTS.ADD_VENDOR, {
+        method: "POST",
+        headers: API_HEADERS,
+        body: vendorData,
+      });
+      const data = await response.json();
+      if(!data.success) {
+        setError(data.msg);
+        return;
+      } else {
+        onClose();
+      }
+    } catch (error) {
+      console.error("Saved Failed", error);
+    }
     console.log("Form Data:", formData);
-    onClose();
   };
 
   return (
