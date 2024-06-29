@@ -14,7 +14,7 @@ export const API_ENDPOINTS = {
   GET_ORDERS_BY_STATUS: `${API_BASE_URL}/getOrdersByStatus`,
   MAKE_ORDER: `${API_BASE_URL}/makeOrder`,
   GET_USER_ADDRESSES: `${API_BASE_URL}/getUserAddresses`,
-  ADD_EQUIPMENT_Detail: `${API_BASE_URL}/addEquipmentsDetail`,
+  ADD_EQUIPMENT_DETAIL: `${API_BASE_URL}/addEquipmentsDetail`,
   ADD_VENDOR: `${API_BASE_URL}/addVendor`,
 };
 

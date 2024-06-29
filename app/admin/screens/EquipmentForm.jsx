@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import qs from "qs";
+
 import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
-import qs from "qs";
 import VendorRegisterModal from "../modals/VendorRegisterModal";
 
 const EquipmentForm = ({ navigation }) => {
@@ -18,7 +20,24 @@ const EquipmentForm = ({ navigation }) => {
   const [error, setError] = useState("");
   const [vendorRegisterModalVisible, setVendorRegisterModalVisible] =
     useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Reset form values when the screen is focused
+      setForm({
+        email: "",
+        location: "",
+        productName: "",
+        model: "",
+        company: "",
+        rent: "",
+      });
+      setError("");
+    }, [])
+  );
+
   const handleChange = (key, value) => {
+    setError("");
     setForm({
       ...form,
       [key]: value,
@@ -30,7 +49,18 @@ const EquipmentForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    console.log(form.email);
+    // if (
+    //   !form.email ||
+    //   !form.location ||
+    //   !form.productName ||
+    //   !form.model ||
+    //   !form.company ||
+    //   !form.rent
+    // ) {
+    //   setError("Enter all Fields");
+    //   return;
+    // }
+
     const equipmentData = qs.stringify({
       email: form.email,
       location: form.location,
@@ -43,7 +73,7 @@ const EquipmentForm = ({ navigation }) => {
     });
 
     try {
-      const response = await fetch(API_ENDPOINTS.ADD_EQUIPMENT_Detail, {
+      const response = await fetch(API_ENDPOINTS.ADD_EQUIPMENT_DETAIL, {
         method: "POST",
         headers: API_HEADERS,
         body: equipmentData,
@@ -99,8 +129,10 @@ const EquipmentForm = ({ navigation }) => {
               placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
               onChangeText={(text) => handleChange(key, text)}
               keyboardType={
-                key === "phone" || key === "totalQuantity"
+                key === "rent"
                   ? "numeric"
+                  : key === "email"
+                  ? "email-address"
                   : "default"
               }
             />
@@ -110,6 +142,7 @@ const EquipmentForm = ({ navigation }) => {
         <VendorRegisterModal
           visible={vendorRegisterModalVisible}
           onClose={() => setVendorRegisterModalVisible(false)}
+          vendorEmail={form.email}
         />
         <Pressable
           className="bg-primary items-center p-2 rounded-lg my-4 w-24"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,21 @@ import {
 import qs from "qs";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 
-const VendorRegisterModal = ({ visible, onClose }) => {
+const VendorRegisterModal = ({ visible, onClose, vendorEmail }) => {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    email: vendorEmail,
     phone: "",
     address: "",
   });
   const [error, setError] = useState();
+
+  useEffect(() => {
+    setFormData((prevForm) => ({
+      ...prevForm,
+      email: vendorEmail,
+    }));
+  }, [vendorEmail]);
 
   const handleInputChange = (name, value) => {
     setFormData({
@@ -27,7 +34,12 @@ const VendorRegisterModal = ({ visible, onClose }) => {
   };
 
   const handleSubmit = async () => {
-    if(!formData.email || !formData.name || !formData.phone || !formData.address) {
+    if (
+      !formData.email ||
+      !formData.name ||
+      !formData.phone ||
+      !formData.address
+    ) {
       setError("Enter all Fields");
       return;
     }
@@ -44,7 +56,7 @@ const VendorRegisterModal = ({ visible, onClose }) => {
         body: vendorData,
       });
       const data = await response.json();
-      if(!data.success) {
+      if (!data.success) {
         setError(data.msg);
         return;
       } else {
