@@ -63,7 +63,7 @@ const OrdersApproval = ({ route, navigation }) => {
           setOrders(ordersData);
         } catch (error) {
           console.error("Error in fetching placed orders: ", error);
-          setError(setError("Error in fetching placed orders."));
+          setError("Error in fetching placed orders.");
         } finally {
           setLoading(false);
         }
@@ -86,9 +86,53 @@ const OrdersApproval = ({ route, navigation }) => {
     </Pressable>
   );
 
-  const handleAcceptOrder = (item) => {};
+  const handleAcceptOrder = async (item) => {
+    try {
+      const data = qs.stringify({
+        orderId: item._id,
+        vendorEmail: "Govind Kurdia@9166826011",
+        rent: 50000,
+      });
+      console.log(API_HEADERS);
+      console.log(data);
+      const response = await axios.post(
+        API_ENDPOINTS.ACCEPT_ORDER,
+        data,
+        API_HEADERS
+      );
+      console.log("hello3");
+      if (response.data.success) {
+        console.log("Accepted");
+      } else {
+        console.error("Error: ", response.data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
-  const handleCancelOrder = (item) => {};
+  const handleCancelOrder = async (item) => {
+    try {
+      const data = qs.stringify({
+        orderId: item._id,
+      });
+      console.log(API_HEADERS);
+      console.log(data);
+      const response = await axios.post(
+        API_ENDPOINTS.CANCEL_ORDER,
+        data,
+        API_HEADERS
+      );
+      console.log("hello3");
+      if (response.data.success) {
+        console.log("Cancelled");
+      } else {
+        console.error("Error: ", response.data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   const image = require("../../../assets/images/earthmover.jpg");
 
@@ -153,8 +197,8 @@ const OrdersApproval = ({ route, navigation }) => {
                         {item.location}
                       </Text>
                     </View>
-                    <View className="flex-row items-cente">
-                      <Text className="flex-1 font-semibold">Staus</Text>
+                    <View className="flex-row items-center">
+                      <Text className="flex-1 font-semibold">Status</Text>
                       <Text className="font-semibold flex-1 ">
                         {item.status}
                       </Text>
@@ -170,13 +214,13 @@ const OrdersApproval = ({ route, navigation }) => {
                 <View className="flex-row items-center justify-evenly mt-4 p-2">
                   <Pressable
                     className="p-2 rounded-lg bg-green w-24 items-center"
-                    onPress={handleAcceptOrder(item)}
+                    onPress={() => handleAcceptOrder(item)}
                   >
                     <Text className="text-white text-md font-bold">Accept</Text>
                   </Pressable>
                   <Pressable
                     className="p-2 rounded-lg bg-red w-24 items-center"
-                    onPress={handleCancelOrder(item)}
+                    onPress={() => handleCancelOrder(item)}
                   >
                     <Text className="text-white text-md font-bold">Cancel</Text>
                   </Pressable>
