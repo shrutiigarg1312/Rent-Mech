@@ -10,13 +10,10 @@ import {
 
 import { equipmentTypes } from "../../constants/equipmentTypes";
 import Header from "../../components/Header";
-import { useLocation } from "../context/LocationContext";
 
 const HomeScreen = ({ navigation }) => {
   // Importing equipmentTypes array
   const [equipments] = useState(equipmentTypes);
-  const { selectedLocation } = useLocation();
-
   const [key, setKey] = useState(Date.now());
   const [numColumns, setNumColumns] = useState(2); // Initial number of columns
 
@@ -70,26 +67,14 @@ const HomeScreen = ({ navigation }) => {
     <View className="flex-1 bg-gray ">
       <Header />
       <View style={{ zIndex: -5 }} className=" flex-1 items-center">
-        {selectedLocation === "Rajasthan" ? (
-          <FlatList
-            data={equipments}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            numColumns={numColumns}
-            key={key}
-          />
-        ) : (
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-xl p-2 m-3">
-              Currently unavailable in{" "}
-              <Text className="font-bold">{selectedLocation}</Text>.
-            </Text>
-            <Text className="text-2xl p-2 m-1 font-semibold">
-              Stay tuned - Coming soon!
-            </Text>
-          </View>
-        )}
+        <FlatList
+          data={equipments}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={false}
+          numColumns={numColumns}
+          key={key}
+        />
       </View>
     </View>
   );
