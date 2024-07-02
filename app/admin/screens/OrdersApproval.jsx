@@ -134,7 +134,80 @@ const OrdersApproval = ({ route, navigation }) => {
     }
   };
 
+  const handleCompleteOrder = async (item) => {
+    try {
+      const data = qs.stringify({
+        orderId: item._id,
+      });
+      const response = await axios.post(
+        API_ENDPOINTS.COMPLETE_ORDER,
+        data,
+        API_HEADERS
+      );
+      if (response.data.success) {
+        console.log("Completed");
+      } else {
+        console.error("Error: ", response.data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   const image = require("../../../assets/images/earthmover.jpg");
+
+  const renderButtons = (item) => {
+    switch (item.status) {
+      case "Placed":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Pressable
+              className="p-2 rounded-lg bg-green w-24 items-center"
+              onPress={() => handleAcceptOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Accept</Text>
+            </Pressable>
+            <Pressable
+              className="p-2 rounded-lg bg-red w-24 items-center"
+              onPress={() => handleCancelOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Cancel</Text>
+            </Pressable>
+          </View>
+        );
+      case "Accepted":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Pressable
+              className="p-2 rounded-lg bg-green w-24 items-center"
+              onPress={() => handleCompleteOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Complete</Text>
+            </Pressable>
+            <Pressable
+              className="p-2 rounded-lg bg-red w-24 items-center"
+              onPress={() => handleCancelOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Cancel</Text>
+            </Pressable>
+          </View>
+        );
+      case "Completed":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Text className="text-md font-bold">Order Completed</Text>
+          </View>
+        );
+      case "Cancelled":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Text className="text-md font-bold">Order Cancelled</Text>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1">
@@ -187,21 +260,15 @@ const OrdersApproval = ({ route, navigation }) => {
                     </View>
                     <View className="flex-row mb-2">
                       <Text className="flex-1">Duration </Text>
-                      <Text className="font-semibold flex-1">
-                        {item.duration}
-                      </Text>
+                      <Text className="font-semibold flex-1">{item.duration}</Text>
                     </View>
                     <View className="flex-row mb-2">
                       <Text className="flex-1">Location </Text>
-                      <Text className="font-semibold flex-1">
-                        {item.location}
-                      </Text>
+                      <Text className="font-semibold flex-1">{item.location}</Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="flex-1 font-semibold">Status</Text>
-                      <Text className="font-semibold flex-1 ">
-                        {item.status}
-                      </Text>
+                      <Text className="font-semibold flex-1 ">{item.status}</Text>
                     </View>
                   </View>
                   <View className="w-2/5 items-center justify-center">
@@ -211,20 +278,7 @@ const OrdersApproval = ({ route, navigation }) => {
                     />
                   </View>
                 </View>
-                <View className="flex-row items-center justify-evenly mt-4 p-2">
-                  <Pressable
-                    className="p-2 rounded-lg bg-green w-24 items-center"
-                    onPress={() => handleAcceptOrder(item)}
-                  >
-                    <Text className="text-white text-md font-bold">Accept</Text>
-                  </Pressable>
-                  <Pressable
-                    className="p-2 rounded-lg bg-red w-24 items-center"
-                    onPress={() => handleCancelOrder(item)}
-                  >
-                    <Text className="text-white text-md font-bold">Cancel</Text>
-                  </Pressable>
-                </View>
+                {renderButtons(item)}
               </View>
             )}
             keyExtractor={(item) => item._id}
