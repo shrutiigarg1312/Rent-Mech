@@ -56,7 +56,9 @@ const PurchaseModal = ({
           setUserAddresses(data.addresses);
           if (data.addresses.length > 0) {
             setSelectedAddress(data.addresses[0]._id); // Select the first address by default
-            setSelectedAddressLabel(`${data.addresses[0].address}, ${data.addresses[0].pincode}`);
+            setSelectedAddressLabel(
+              `${data.addresses[0].address}, ${data.addresses[0].pincode}`
+            );
           } else {
             setError("Add an address");
           }
@@ -77,7 +79,6 @@ const PurchaseModal = ({
   };
 
   const handleSubmit = async () => {
-
     const currentDate = new Date();
     const selectedDate = new Date(formData.date);
 
@@ -144,6 +145,11 @@ const PurchaseModal = ({
               Rent {selectedItem.productName}
             </Text>
           </View>
+          <View style={styles.header2}>
+            <Text style={styles.header2Text}>
+              {selectedItem.model} {selectedItem.company}
+            </Text>
+          </View>
           <View style={styles.body}>
             <input
               type="date"
@@ -176,7 +182,9 @@ const PurchaseModal = ({
                 selectedValue={selectedAddress}
                 onValueChange={(itemValue, itemIndex) => {
                   setSelectedAddress(itemValue);
-                  setSelectedAddressLabel(`${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`);
+                  setSelectedAddressLabel(
+                    `${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`
+                  );
                 }}
               >
                 {userAddresses.map((address) => (
@@ -231,9 +239,17 @@ const styles = {
     alignItems: "center",
     marginBottom: 20,
   },
+  header2: {
+    marginLeft: 5,
+    marginBottom: 20,
+  },
   headerText: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  header2Text: {
+    fontSize: 16,
+    fontWeight: "600",
   },
   body: {
     width: "100%",
@@ -247,7 +263,7 @@ const styles = {
     borderRadius: 5,
   },
   dateInput: {
-    width: "100%",
+    width: "92%",
     padding: 10,
     marginVertical: 10,
     borderWidth: 1,
@@ -261,6 +277,10 @@ const styles = {
   picker: {
     flex: 1,
     marginLeft: 10,
+    paddingLeft: 10,
+    height: "65%",
+    borderColor: "#ccc",
+    borderRadius: 5,
   },
   footer: {
     flexDirection: "row",
