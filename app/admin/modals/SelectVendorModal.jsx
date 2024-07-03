@@ -17,6 +17,8 @@ const SelectVendorModal = ({
   setModalVisible,
   selectedItem,
   setSelectedItem,
+  setTriggerFetch,
+  setStatus,
 }) => {
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState("");
@@ -72,6 +74,12 @@ const SelectVendorModal = ({
       return;
     }
     setConfirmOrderModalVisible(true);
+  };
+
+  const handleClose = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
+    setTriggerFetch((prev) => !prev);
   };
 
   return (
@@ -138,8 +146,7 @@ const SelectVendorModal = ({
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={() => {
-                setModalVisible(false);
-                setSelectedItem(null);
+                handleClose();
               }}
             >
               <Text style={styles.buttonText}>Close</Text>
@@ -154,6 +161,8 @@ const SelectVendorModal = ({
         selectedItem={selectedItem}
         selectedVendor={selectedVendor}
         rent={rent}
+        setTriggerFetch={setTriggerFetch}
+        setStatus={setStatus}
       />
     </Modal>
   );

@@ -27,6 +27,7 @@ const OrdersApproval = ({ route, navigation }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectVendorModalVisible, setSelectVendorModalVisible] =
     useState(false);
+  const [triggerFetch, setTriggerFetch] = useState(false);
 
   const fetchOrdersByStatus = async () => {
     try {
@@ -74,7 +75,7 @@ const OrdersApproval = ({ route, navigation }) => {
       };
 
       fetchPlacedOrders();
-    }, [navigation, status, selectVendorModalVisible])
+    }, [navigation, status, triggerFetch])
   );
 
   const renderStatusTab = (tabStatus) => (
@@ -107,9 +108,10 @@ const OrdersApproval = ({ route, navigation }) => {
         data,
         API_HEADERS
       );
-      console.log("hello3");
       if (response.data.success) {
         console.log("Cancelled");
+        setStatus("Cancelled");
+        setTriggerFetch((prev) => !prev);
       } else {
         console.error("Error: ", response.data.message || "Unknown error");
       }
@@ -130,6 +132,8 @@ const OrdersApproval = ({ route, navigation }) => {
       );
       if (response.data.success) {
         console.log("Completed");
+        setStatus("Completed");
+        setTriggerFetch((prev) => !prev);
       } else {
         console.error("Error: ", response.data.message || "Unknown error");
       }
@@ -285,6 +289,8 @@ const OrdersApproval = ({ route, navigation }) => {
             setModalVisible={setSelectVendorModalVisible}
             selectedItem={selectedItem}
             setSelectedItem={setSelectedItem}
+            setTriggerFetch={setTriggerFetch}
+            setStatus={setStatus}
           />
         )}
       </View>

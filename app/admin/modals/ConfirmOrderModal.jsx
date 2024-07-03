@@ -11,6 +11,8 @@ const ConfirmOrderModal = ({
   selectedItem,
   selectedVendor,
   rent,
+  setTriggerFetch,
+  setStatus,
 }) => {
   const [error, setError] = useState("");
 
@@ -31,6 +33,8 @@ const ConfirmOrderModal = ({
         console.log("Accepted");
         setModalVisible(false);
         setSelectVendorModalVisible(false);
+        setTriggerFetch((prev) => !prev);
+        setStatus("Accepted");
       } else {
         console.error("Error: ", response.data.message || "Unknown error");
         setError("Error Accepting Order");
