@@ -17,12 +17,16 @@ import { useFocusEffect } from "@react-navigation/native";
 import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import SelectVendorModal from "../modals/SelectVendorModal";
 
 const OrdersApproval = ({ route, navigation }) => {
   const [status, setStatus] = useState("Placed");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectVendorModalVisible, setSelectVendorModalVisible] =
+    useState(false);
 
   const fetchOrdersByStatus = async () => {
     try {
@@ -70,7 +74,7 @@ const OrdersApproval = ({ route, navigation }) => {
       };
 
       fetchPlacedOrders();
-    }, [navigation, status])
+    }, [navigation, status, selectVendorModalVisible])
   );
 
   const renderStatusTab = (tabStatus) => (
@@ -86,29 +90,9 @@ const OrdersApproval = ({ route, navigation }) => {
     </Pressable>
   );
 
-  const handleAcceptOrder = async (item) => {
-    try {
-      const data = qs.stringify({
-        orderId: item._id,
-        vendorEmail: "Govind Kurdia@9166826011",
-        rent: 50000,
-      });
-      console.log(API_HEADERS);
-      console.log(data);
-      const response = await axios.post(
-        API_ENDPOINTS.ACCEPT_ORDER,
-        data,
-        API_HEADERS
-      );
-      console.log("hello3");
-      if (response.data.success) {
-        console.log("Accepted");
-      } else {
-        console.error("Error: ", response.data.message || "Unknown error");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
+  const handleSelectVendor = (item) => {
+    setSelectedItem(item);
+    setSelectVendorModalVisible(true);
   };
 
   const handleCancelOrder = async (item) => {
@@ -162,10 +146,12 @@ const OrdersApproval = ({ route, navigation }) => {
         return (
           <View className="flex-row items-center justify-evenly mt-4 p-2">
             <Pressable
-              className="p-2 rounded-lg bg-green w-24 items-center"
-              onPress={() => handleAcceptOrder(item)}
+              className="p-2 rounded-lg bg-primary w-32 items-center"
+              onPress={() => handleSelectVendor(item)}
             >
-              <Text className="text-white text-md font-bold">Accept</Text>
+              <Text className="text-white text-md font-bold">
+                Set Order Details
+              </Text>
             </Pressable>
             <Pressable
               className="p-2 rounded-lg bg-red w-24 items-center"
@@ -195,13 +181,15 @@ const OrdersApproval = ({ route, navigation }) => {
       case "Completed":
         return (
           <View className="flex-row items-center justify-evenly mt-4 p-2">
-            <Text className="text-md font-bold">Order Completed</Text>
+            <Text className="text-md font-bold text-green">
+              Order Completed
+            </Text>
           </View>
         );
       case "Cancelled":
         return (
           <View className="flex-row items-center justify-evenly mt-4 p-2">
-            <Text className="text-md font-bold">Order Cancelled</Text>
+            <Text className="text-md font-bold text-red">Order Cancelled</Text>
           </View>
         );
       default:
@@ -260,15 +248,21 @@ const OrdersApproval = ({ route, navigation }) => {
                     </View>
                     <View className="flex-row mb-2">
                       <Text className="flex-1">Duration </Text>
-                      <Text className="font-semibold flex-1">{item.duration}</Text>
+                      <Text className="font-semibold flex-1">
+                        {item.duration}
+                      </Text>
                     </View>
                     <View className="flex-row mb-2">
                       <Text className="flex-1">Location </Text>
-                      <Text className="font-semibold flex-1">{item.location}</Text>
+                      <Text className="font-semibold flex-1">
+                        {item.location}
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="flex-1 font-semibold">Status</Text>
-                      <Text className="font-semibold flex-1 ">{item.status}</Text>
+                      <Text className="font-semibold flex-1 ">
+                        {item.status}
+                      </Text>
                     </View>
                   </View>
                   <View className="w-2/5 items-center justify-center">
@@ -283,6 +277,14 @@ const OrdersApproval = ({ route, navigation }) => {
             )}
             keyExtractor={(item) => item._id}
             showsVerticalScrollIndicator={false}
+          />
+        )}
+        {selectedItem && (
+          <SelectVendorModal
+            modalVisible={selectVendorModalVisible}
+            setModalVisible={setSelectVendorModalVisible}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
           />
         )}
       </View>
