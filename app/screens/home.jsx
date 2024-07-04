@@ -87,6 +87,7 @@ const HomeScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
         }
+        showsVerticalScrollIndicator={false}
       >
         <View style={{ zIndex: -5 }} className=" flex-1 items-center">
           {selectedLocation === "Rajasthan" ? (

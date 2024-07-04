@@ -148,6 +148,7 @@ const EquipmentForm = ({ navigation }) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
         }
+        showsVerticalScrollIndicator={false}
       >
         {Object.keys(form).map((key) => (
           <View key={key} style={styles.inputContainer}>
