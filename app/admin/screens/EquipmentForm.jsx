@@ -1,5 +1,13 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+} from "react-native";
+import { RefreshControl } from "react-native-web-refresh-control";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import qs from "qs";
@@ -7,6 +15,7 @@ import qs from "qs";
 import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 import VendorRegisterModal from "../modals/VendorRegisterModal";
+import useRefreshing from "../../../hooks/useRefreshing";
 
 const EquipmentForm = ({ navigation }) => {
   const [form, setForm] = useState({
@@ -20,6 +29,15 @@ const EquipmentForm = ({ navigation }) => {
   const [error, setError] = useState("");
   const [vendorRegisterModalVisible, setVendorRegisterModalVisible] =
     useState(false);
+
+  const reloadPage = () => {
+    navigation.navigate("Admin", {
+      screen: "EquipmentForm",
+    });
+  };
+
+  //Reload Equipment types on pull refresh
+  const { refreshing, reloadContent } = useRefreshing(reloadPage);
 
   useFocusEffect(
     useCallback(() => {
@@ -49,17 +67,17 @@ const EquipmentForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    // if (
-    //   !form.email ||
-    //   !form.location ||
-    //   !form.productName ||
-    //   !form.model ||
-    //   !form.company ||
-    //   !form.rent
-    // ) {
-    //   setError("Enter all Fields");
-    //   return;
-    // }
+    if (
+      !form.email ||
+      !form.location ||
+      !form.productName ||
+      !form.model ||
+      !form.company ||
+      !form.rent
+    ) {
+      setError("Enter all Fields");
+      return;
+    }
 
     const equipmentData = qs.stringify({
       email: form.email,
@@ -120,7 +138,17 @@ const EquipmentForm = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <View style={{ zIndex: -5 }} className="p-10 flex-1 items-center">
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          alignItems: "center",
+          zIndex: -5,
+          padding: 40,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
+        }
+      >
         {Object.keys(form).map((key) => (
           <View key={key} style={styles.inputContainer}>
             <TextInput
@@ -150,7 +178,7 @@ const EquipmentForm = ({ navigation }) => {
         >
           <Text className="text-white text-md font-semibold">Submit</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </View>
   );
 };

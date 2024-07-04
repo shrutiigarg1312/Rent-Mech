@@ -8,15 +8,18 @@ import {
   Platform,
   Pressable,
   Image,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import qs from "qs";
+import { RefreshControl } from "react-native-web-refresh-control";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { DrawerActions } from "@react-navigation/native";
 import Header from "../../components/Header";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useRefreshing from "../../hooks/useRefreshing";
 import { useAuth } from "../context/AuthContext";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
@@ -49,6 +52,8 @@ const OrdersScreen = ({ route, navigation }) => {
     }
   };
 
+  const { refreshing, reloadContent } = useRefreshing(fetchOrders);
+
   useFocusEffect(
     React.useCallback(() => {
       console.log("Orders screen focused");
@@ -78,7 +83,18 @@ const OrdersScreen = ({ route, navigation }) => {
           <Text className="text-xl font-semibold text-black">My Orders</Text>
         </View>
       </View>
-      <View style={{ zIndex: -5 }} className="flex-1 p-5 items-center">
+      <ScrollView
+        contentContainerStyle={{
+          alignItems: "center",
+          flexGrow: 1,
+          zIndex: -5,
+          padding: 25,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
         {authData == null ? (
           <View className="items-center ">
             <Text className="text-lg text-center my-4">
@@ -170,7 +186,7 @@ const OrdersScreen = ({ route, navigation }) => {
             showsVerticalScrollIndicator={false}
           />
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

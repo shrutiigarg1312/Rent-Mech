@@ -7,10 +7,11 @@ import {
   StyleSheet,
   Pressable,
   Image,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import qs from "qs";
-
+import { RefreshControl } from "react-native-web-refresh-control";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -18,6 +19,7 @@ import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import SelectVendorModal from "../modals/SelectVendorModal";
+import useRefreshing from "../../../hooks/useRefreshing";
 
 const OrdersApproval = ({ route, navigation }) => {
   const [status, setStatus] = useState("Placed");
@@ -57,6 +59,8 @@ const OrdersApproval = ({ route, navigation }) => {
       return [];
     }
   };
+
+  const { refreshing, reloadContent } = useRefreshing(fetchOrdersByStatus);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -221,7 +225,18 @@ const OrdersApproval = ({ route, navigation }) => {
         {renderStatusTab("Completed")}
         {renderStatusTab("Cancelled")}
       </View>
-      <View style={{ zIndex: -5 }} className="flex-1 p-5 items-center">
+      <ScrollView
+        contentContainerStyle={{
+          alignItems: "center",
+          flexGrow: 1,
+          zIndex: -5,
+          padding: 25,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
         {loading ? (
           <LoadingSpinner />
         ) : orders.length === 0 ? (
@@ -293,7 +308,7 @@ const OrdersApproval = ({ route, navigation }) => {
             setStatus={setStatus}
           />
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
