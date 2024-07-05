@@ -139,10 +139,10 @@ const EquipmentForm = ({ navigation }) => {
         </View>
       </View>
       <ScrollView
+        style={{ zIndex: -5 }}
         contentContainerStyle={{
           flexGrow: 1,
           alignItems: "center",
-          zIndex: -5,
           padding: 40,
         }}
         refreshControl={

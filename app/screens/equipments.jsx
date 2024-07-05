@@ -114,10 +114,10 @@ const NewItemsScreen = ({ route, navigation }) => {
         </View>
       </View>
       <ScrollView
+        style={{ zIndex: -5 }}
         contentContainerStyle={{
           alignItems: "center",
           flexGrow: 1,
-          zIndex: -5,
         }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />

@@ -84,10 +84,10 @@ const OrdersScreen = ({ route, navigation }) => {
         </View>
       </View>
       <ScrollView
+        style={{ zIndex: -5 }}
         contentContainerStyle={{
           alignItems: "center",
           flexGrow: 1,
-          zIndex: -5,
           padding: 25,
         }}
         refreshControl={
