@@ -12,12 +12,6 @@ import { RefreshControl } from "react-native-web-refresh-control";
 
 import { equipmentTypes } from "../../constants/equipmentTypes";
 import Header from "../../components/Header";
-<<<<<<< HEAD
-
-const HomeScreen = ({ navigation }) => {
-  // Importing equipmentTypes array
-  const [equipments] = useState(equipmentTypes);
-=======
 import { useLocation } from "../context/LocationContext";
 import useRefreshing from "../../hooks/useRefreshing";
 
@@ -26,7 +20,6 @@ const HomeScreen = ({ navigation }) => {
   const [equipments, setEquipments] = useState(equipmentTypes);
   const { selectedLocation } = useLocation();
 
->>>>>>> d4f8df76cc6c5ac656e383d94f9b4bc36e43a0c6
   const [key, setKey] = useState(Date.now());
   const [numColumns, setNumColumns] = useState(2);
 
@@ -89,18 +82,6 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View className="flex-1 bg-gray ">
       <Header />
-<<<<<<< HEAD
-      <View style={{ zIndex: -5 }} className=" flex-1 items-center">
-        <FlatList
-          data={equipments}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          numColumns={numColumns}
-          key={key}
-        />
-      </View>
-=======
       <ScrollView
         style={{ zIndex: -5 }}
         contentContainerStyle={{ flexGrow: 1 }}
@@ -132,7 +113,6 @@ const HomeScreen = ({ navigation }) => {
           )}
         </View>
       </ScrollView>
->>>>>>> d4f8df76cc6c5ac656e383d94f9b4bc36e43a0c6
     </View>
   );
 };
