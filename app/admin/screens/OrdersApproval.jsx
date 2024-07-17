@@ -7,22 +7,29 @@ import {
   StyleSheet,
   Pressable,
   Image,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import qs from "qs";
-
+import { RefreshControl } from "react-native-web-refresh-control";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
 import Header from "../../../components/Header";
 import { API_ENDPOINTS, API_HEADERS } from "../../../config/apiConfig";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import SelectVendorModal from "../modals/SelectVendorModal";
+import useRefreshing from "../../../hooks/useRefreshing";
 
 const OrdersApproval = ({ route, navigation }) => {
   const [status, setStatus] = useState("Placed");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectVendorModalVisible, setSelectVendorModalVisible] =
+    useState(false);
+  const [triggerFetch, setTriggerFetch] = useState(false);
 
   const fetchOrdersByStatus = async () => {
     try {
@@ -53,6 +60,8 @@ const OrdersApproval = ({ route, navigation }) => {
     }
   };
 
+  const { refreshing, reloadContent } = useRefreshing(fetchOrdersByStatus);
+
   useFocusEffect(
     React.useCallback(() => {
       setLoading(true);
@@ -63,14 +72,14 @@ const OrdersApproval = ({ route, navigation }) => {
           setOrders(ordersData);
         } catch (error) {
           console.error("Error in fetching placed orders: ", error);
-          setError(setError("Error in fetching placed orders."));
+          setError("Error in fetching placed orders.");
         } finally {
           setLoading(false);
         }
       };
 
       fetchPlacedOrders();
-    }, [navigation, status])
+    }, [navigation, status, triggerFetch])
   );
 
   const renderStatusTab = (tabStatus) => (
@@ -86,11 +95,115 @@ const OrdersApproval = ({ route, navigation }) => {
     </Pressable>
   );
 
-  const handleAcceptOrder = (item) => {};
+  const handleSelectVendor = (item) => {
+    setSelectedItem(item);
+    setSelectVendorModalVisible(true);
+  };
 
-  const handleCancelOrder = (item) => {};
+  const handleCancelOrder = async (item) => {
+    try {
+      const data = qs.stringify({
+        orderId: item._id,
+      });
+      console.log(API_HEADERS);
+      console.log(data);
+      const response = await axios.post(
+        API_ENDPOINTS.CANCEL_ORDER,
+        data,
+        API_HEADERS
+      );
+      if (response.data.success) {
+        console.log("Cancelled");
+        setStatus("Cancelled");
+        setTriggerFetch((prev) => !prev);
+      } else {
+        console.error("Error: ", response.data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleCompleteOrder = async (item) => {
+    try {
+      const data = qs.stringify({
+        orderId: item._id,
+      });
+      const response = await axios.post(
+        API_ENDPOINTS.COMPLETE_ORDER,
+        data,
+        API_HEADERS
+      );
+      if (response.data.success) {
+        console.log("Completed");
+        setStatus("Completed");
+        setTriggerFetch((prev) => !prev);
+      } else {
+        console.error("Error: ", response.data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   const image = require("../../../assets/images/earthmover.jpg");
+
+  const renderButtons = (item) => {
+    switch (item.status) {
+      case "Placed":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Pressable
+              className="p-2 rounded-lg bg-primary w-32 items-center"
+              onPress={() => handleSelectVendor(item)}
+            >
+              <Text className="text-white text-md font-bold">
+                Set Order Details
+              </Text>
+            </Pressable>
+            <Pressable
+              className="p-2 rounded-lg bg-red w-24 items-center"
+              onPress={() => handleCancelOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Cancel</Text>
+            </Pressable>
+          </View>
+        );
+      case "Accepted":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Pressable
+              className="p-2 rounded-lg bg-green w-24 items-center"
+              onPress={() => handleCompleteOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Complete</Text>
+            </Pressable>
+            <Pressable
+              className="p-2 rounded-lg bg-red w-24 items-center"
+              onPress={() => handleCancelOrder(item)}
+            >
+              <Text className="text-white text-md font-bold">Cancel</Text>
+            </Pressable>
+          </View>
+        );
+      case "Completed":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Text className="text-md font-bold text-green">
+              Order Completed
+            </Text>
+          </View>
+        );
+      case "Cancelled":
+        return (
+          <View className="flex-row items-center justify-evenly mt-4 p-2">
+            <Text className="text-md font-bold text-red">Order Cancelled</Text>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1">
@@ -112,7 +225,18 @@ const OrdersApproval = ({ route, navigation }) => {
         {renderStatusTab("Completed")}
         {renderStatusTab("Cancelled")}
       </View>
-      <View style={{ zIndex: -5 }} className="flex-1 p-5 items-center">
+      <ScrollView
+        style={{ zIndex: -5 }}
+        contentContainerStyle={{
+          alignItems: "center",
+          flexGrow: 1,
+          padding: 25,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
         {loading ? (
           <LoadingSpinner />
         ) : orders.length === 0 ? (
@@ -153,8 +277,8 @@ const OrdersApproval = ({ route, navigation }) => {
                         {item.location}
                       </Text>
                     </View>
-                    <View className="flex-row items-cente">
-                      <Text className="flex-1 font-semibold">Staus</Text>
+                    <View className="flex-row items-center">
+                      <Text className="flex-1 font-semibold">Status</Text>
                       <Text className="font-semibold flex-1 ">
                         {item.status}
                       </Text>
@@ -167,27 +291,24 @@ const OrdersApproval = ({ route, navigation }) => {
                     />
                   </View>
                 </View>
-                <View className="flex-row items-center justify-evenly mt-4 p-2">
-                  <Pressable
-                    className="p-2 rounded-lg bg-green w-24 items-center"
-                    onPress={handleAcceptOrder(item)}
-                  >
-                    <Text className="text-white text-md font-bold">Accept</Text>
-                  </Pressable>
-                  <Pressable
-                    className="p-2 rounded-lg bg-red w-24 items-center"
-                    onPress={handleCancelOrder(item)}
-                  >
-                    <Text className="text-white text-md font-bold">Cancel</Text>
-                  </Pressable>
-                </View>
+                {renderButtons(item)}
               </View>
             )}
             keyExtractor={(item) => item._id}
             showsVerticalScrollIndicator={false}
           />
         )}
-      </View>
+        {selectedItem && (
+          <SelectVendorModal
+            modalVisible={selectVendorModalVisible}
+            setModalVisible={setSelectVendorModalVisible}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
+            setTriggerFetch={setTriggerFetch}
+            setStatus={setStatus}
+          />
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -209,6 +330,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     marginBottom: 16,
+    zIndex: -5,
   },
   tab: {
     padding: 10,

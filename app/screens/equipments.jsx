@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, Text, Dimensions, Pressable } from "react-native";
+import {
+  View,
+  FlatList,
+  Text,
+  Dimensions,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import qs from "qs";
 import { useFocusEffect } from "@react-navigation/native";
+import { RefreshControl } from "react-native-web-refresh-control";
 
 import Header from "../../components/Header";
 import GridView from "../../components/GridView";
 import PurchaseModal from "../modals/PurchaseModal";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useRefreshing from "../../hooks/useRefreshing";
 import { useLocation } from "../context/LocationContext";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 
@@ -62,6 +71,8 @@ const NewItemsScreen = ({ route, navigation }) => {
     }
   };
 
+  const { refreshing, reloadContent } = useRefreshing(fetchNewItems);
+
   useFocusEffect(
     React.useCallback(() => {
       setLoading(true); // Reset loading state
@@ -102,7 +113,17 @@ const NewItemsScreen = ({ route, navigation }) => {
           </Text>
         </View>
       </View>
-      <View style={{ zIndex: -5 }} className="flex-1 items-center">
+      <ScrollView
+        style={{ zIndex: -5 }}
+        contentContainerStyle={{
+          alignItems: "center",
+          flexGrow: 1,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={reloadContent} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
         {loading ? (
           <LoadingSpinner />
         ) : newItems.length === 0 ? (
@@ -127,7 +148,7 @@ const NewItemsScreen = ({ route, navigation }) => {
             key={key}
           />
         )}
-      </View>
+      </ScrollView>
       {selectedItem && (
         <PurchaseModal
           modalVisible={purchaseModalVisible}

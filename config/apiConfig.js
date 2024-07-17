@@ -16,6 +16,10 @@ export const API_ENDPOINTS = {
   GET_USER_ADDRESSES: `${API_BASE_URL}/getUserAddresses`,
   ADD_EQUIPMENT_DETAIL: `${API_BASE_URL}/addEquipmentsDetail`,
   ADD_VENDOR: `${API_BASE_URL}/addVendor`,
+  GET_VENDORS_LIST: `${API_BASE_URL}/getVendorsList`,
+  ACCEPT_ORDER: `${API_BASE_URL}/acceptOrder`,
+  CANCEL_ORDER: `${API_BASE_URL}/cancelOrder`,
+  COMPLETE_ORDER: `${API_BASE_URL}/completeOrder`,
 };
 
 export const API_HEADERS = {

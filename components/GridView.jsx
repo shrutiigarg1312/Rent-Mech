@@ -56,7 +56,7 @@ const GridView = ({ item, setSelectedItem, setPurchaseModalVisible }) => {
 const styles = StyleSheet.create({
   wrapperCustom: {
     width: 350,
-    height: 160,
+    minHeight: 160,
   },
   shadowProp: {
     shadowColor: "rgb(0, 0, 0)",
