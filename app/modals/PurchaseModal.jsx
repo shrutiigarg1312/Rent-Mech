@@ -9,6 +9,7 @@ import {
   Picker,
 } from "react-native";
 import qs from "qs";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
 import { useLocation } from "../context/LocationContext";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
@@ -31,7 +32,7 @@ const PurchaseModal = ({
     address: "",
   });
   const [userAddresses, setUserAddresses] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedAddressLabel, setSelectedAddressLabel] = useState("");
   const { selectedLocation } = useLocation();
   const { authData } = useAuth();
@@ -54,13 +55,12 @@ const PurchaseModal = ({
       .then((data) => {
         if (data.success) {
           setUserAddresses(data.addresses);
+          console.log(userAddresses);
           if (data.addresses.length > 0) {
             setSelectedAddress(data.addresses[0]._id); // Select the first address by default
             setSelectedAddressLabel(
               `${data.addresses[0].address}, ${data.addresses[0].pincode}`
             );
-          } else {
-            setError("Add an address");
           }
         } else {
           Alert.alert("Error", data.msg || "Failed to fetch addresses");
@@ -71,10 +71,9 @@ const PurchaseModal = ({
         Alert.alert("Error", "Failed to fetch addresses");
       });
   };
-  console.log(authData);
-  console.log(selectedLocation);
 
   const handleInputChange = (field, value) => {
+    clearError();
     setFormData({ ...formData, [field]: value });
   };
 
@@ -83,15 +82,23 @@ const PurchaseModal = ({
     const selectedDate = new Date(formData.date);
 
     if (!formData.date) {
-      setError("Enter Date");
+      setError("Please enter Start Date");
       return;
     }
     if (selectedDate < currentDate) {
-      setError("The selected date cannot be in the past.");
+      setError("The start date cannot be in the past.");
       return;
     }
     if (!formData.duration) {
-      setError("Enter Duration");
+      setError("Please enter Duration");
+      return;
+    }
+    if (userAddresses.length === 0) {
+      setError("Please add an address to continue");
+      return;
+    }
+    if (selectedAddress === "") {
+      setError("Please select a delivery address");
       return;
     }
     const orderData = qs.stringify({
@@ -151,12 +158,15 @@ const PurchaseModal = ({
             </Text>
           </View>
           <View style={styles.body}>
-            <input
-              type="date"
-              value={formData.date}
-              onChange={(e) => handleInputChange("date", e.target.value)}
-              style={styles.dateInput}
-            />
+            <View>
+              <Text style={styles.inputLabel}>Select Start Date : </Text>
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => handleInputChange("date", e.target.value)}
+                style={styles.dateInput}
+              />
+            </View>
             <View style={styles.durationContainer}>
               <TextInput
                 style={styles.input}
@@ -177,25 +187,48 @@ const PurchaseModal = ({
                 <Picker.Item label="Months" value="months" />
               </Picker>
             </View>
-            <View style={styles.input}>
-              <Picker
-                selectedValue={selectedAddress}
-                onValueChange={(itemValue, itemIndex) => {
-                  setSelectedAddress(itemValue);
-                  setSelectedAddressLabel(
-                    `${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`
-                  );
-                }}
-              >
-                {userAddresses.map((address) => (
-                  <Picker.Item
-                    key={address._id}
-                    label={`${address.address}, ${address.pincode}`}
-                    value={address._id}
-                  />
-                ))}
-              </Picker>
-            </View>
+            {userAddresses.length > 0 ? (
+              <View style={styles.addressContainer}>
+                <Text style={styles.inputLabel}>Select Address : </Text>
+                <Picker
+                  style={styles.addressPicker}
+                  selectedValue={selectedAddress}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setSelectedAddress(itemValue);
+                    setSelectedAddressLabel(
+                      `${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`
+                    );
+                  }}
+                >
+                  {userAddresses.map((address) => (
+                    <Picker.Item
+                      key={address._id}
+                      label={`${address.address}, ${address.pincode}`}
+                      value={address._id}
+                    />
+                  ))}
+                </Picker>
+                <View className="items-center">
+                  <TouchableOpacity
+                    style={styles.addAddressContainer}
+                    // onPress={handleSubmit}
+                  >
+                    <Ionicons name="add-outline" size={18} color="#2E8B57" />
+                    <Text style={styles.addAddressText}>Add New Address</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <View className="items-center">
+                <TouchableOpacity
+                  style={styles.addAddressContainer}
+                  // onPress={handleSubmit}
+                >
+                  <Ionicons name="add-outline" size={18} color="#2E8B57" />
+                  <Text style={styles.addAddressText}>Add Address</Text>
+                </TouchableOpacity>
+              </View>
+            )}
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
@@ -229,7 +262,7 @@ const styles = {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: 300,
+    width: 320,
     padding: 20,
     backgroundColor: "white",
     borderRadius: 10,
@@ -242,13 +275,14 @@ const styles = {
   header2: {
     marginLeft: 5,
     marginBottom: 20,
+    alignItems: "center",
   },
   headerText: {
     fontSize: 20,
     fontWeight: "bold",
   },
   header2Text: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   body: {
@@ -262,10 +296,16 @@ const styles = {
     borderColor: "#ccc",
     borderRadius: 5,
   },
+  inputLabel: {
+    marginVertical: 6,
+    marginHorizontal: 6,
+    fontSize: 14,
+  },
   dateInput: {
     width: "92%",
     padding: 10,
     marginVertical: 10,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
@@ -281,6 +321,27 @@ const styles = {
     height: "65%",
     borderColor: "#ccc",
     borderRadius: 5,
+  },
+  addressContainer: {
+    marginVertical: 10,
+  },
+  addAddressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  addressPicker: {
+    marginLeft: 2,
+    paddingLeft: 10,
+    height: 40,
+    borderColor: "#ccc",
+    borderRadius: 5,
+  },
+  addAddressText: {
+    marginLeft: 5,
+    color: "#2E8B57",
+    fontSize: 16,
+    fontWeight: "500",
   },
   footer: {
     flexDirection: "row",
