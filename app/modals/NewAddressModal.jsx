@@ -11,7 +11,11 @@ import qs from "qs";
 import { useAuth } from "../context/AuthContext";
 import { API_HEADERS, API_ENDPOINTS } from "../../config/apiConfig";
 
-const NewAddressModal = ({ modalVisible, setModalVisible }) => {
+const NewAddressModal = ({
+  modalVisible,
+  setModalVisible,
+  fetchUserAddresses,
+}) => {
   const { authData } = useAuth();
   const [formData, setFormData] = useState({
     address: "",
@@ -20,6 +24,7 @@ const NewAddressModal = ({ modalVisible, setModalVisible }) => {
     pincode: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     clearError();
@@ -27,7 +32,6 @@ const NewAddressModal = ({ modalVisible, setModalVisible }) => {
   };
 
   const handleSubmit = async () => {
-    console.log("Entered submit");
     if (
       !formData.address ||
       !formData.city ||
@@ -37,19 +41,18 @@ const NewAddressModal = ({ modalVisible, setModalVisible }) => {
       setError("Please enter all the fields");
       return;
     }
-
     if (formData.pincode.length !== 6) {
       setError("Please enter a valid pincode");
       return;
     }
+
+    setLoading(true);
 
     const addressData = qs.stringify({
       email: authData.email,
       address: formData.address + ", " + formData.city + ", " + formData.state,
       pincode: formData.pincode,
     });
-
-    console.log(addressData);
 
     await fetch(API_ENDPOINTS.ADD_USER_ADDRESS, {
       method: "POST",
@@ -60,13 +63,19 @@ const NewAddressModal = ({ modalVisible, setModalVisible }) => {
       .then((data) => {
         console.log(data);
         Alert.alert("Success", "Your address has been saved.");
+        fetchUserAddresses(authData.email);
         setModalVisible(false);
       })
       .catch((error) => {
         console.error("Error:", error);
+        setError("There was a problem saving the address");
         Alert.alert("Error", "There was a problem saving the address");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
+
   const clearError = () => {
     setError(""); // Clear error message
   };
@@ -120,7 +129,9 @@ const NewAddressModal = ({ modalVisible, setModalVisible }) => {
               style={[styles.button, styles.submitButton]}
               onPress={handleSubmit}
             >
-              <Text style={styles.buttonText}>Add</Text>
+              <Text style={styles.buttonText}>
+                {loading ? "Saving..." : "Add"}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}

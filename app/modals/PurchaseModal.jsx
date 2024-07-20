@@ -43,14 +43,14 @@ const PurchaseModal = ({
   const [newAddressModalVisible, setNewAddressModalVisible] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
     if (authData && authData.email) {
       fetchUserAddresses(authData.email);
-      setLoading(false);
     }
   }, [authData]);
 
   const fetchUserAddresses = (email) => {
+    setLoading(true);
+    console.log("fetch called");
     fetch(API_ENDPOINTS.GET_USER_ADDRESSES, {
       method: "POST",
       headers: API_HEADERS,
@@ -62,9 +62,10 @@ const PurchaseModal = ({
           setUserAddresses(data.addresses);
           console.log(data.addresses);
           if (data.addresses.length > 0) {
-            setSelectedAddress(data.addresses[0]._id); // Select the first address by default
+            const index = data.addresses.length - 1;
+            setSelectedAddress(data.addresses[index]._id); // Select the first address by default
             setSelectedAddressLabel(
-              `${data.addresses[0].address}, ${data.addresses[0].pincode}`
+              `${data.addresses[index].address}, ${data.addresses[index].pincode}`
             );
           }
         } else {
@@ -75,6 +76,7 @@ const PurchaseModal = ({
         console.error("Error:", error);
         Alert.alert("Error", "Failed to fetch addresses");
       });
+    setLoading(false);
   };
 
   const handleInputChange = (field, value) => {
@@ -84,13 +86,6 @@ const PurchaseModal = ({
 
   const handleAddAddressPress = () => {
     setNewAddressModalVisible(true);
-  };
-
-  const closeNewAddressModal = () => {
-    setNewAddressModalVisible(false);
-    setLoading(true);
-    fetchUserAddresses(authData.email);
-    setLoading(false);
   };
 
   const handleSubmit = async () => {
@@ -251,6 +246,7 @@ const PurchaseModal = ({
               <NewAddressModal
                 modalVisible={newAddressModalVisible}
                 setModalVisible={setNewAddressModalVisible}
+                fetchUserAddresses={fetchUserAddresses}
               />
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
             </View>
