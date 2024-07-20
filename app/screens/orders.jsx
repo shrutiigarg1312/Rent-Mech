@@ -40,8 +40,10 @@ const OrdersScreen = ({ route, navigation }) => {
       );
 
       if (response.data.success) {
-        console.log("Orders:", response.data); // Log the orders
-        setNewOrders(response.data.orders); // Update state with the new orders
+        response.data.orders.sort(
+          (a, b) => new Date(b.placedTime) - new Date(a.placedTime)
+        );
+        setNewOrders(response.data.orders);
       } else {
         console.error("Error: ", response.data.message || "Unknown error");
       }
