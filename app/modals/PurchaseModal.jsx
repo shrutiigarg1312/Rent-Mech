@@ -12,7 +12,9 @@ import qs from "qs";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
 import { useLocation } from "../context/LocationContext";
+import NewAddressModal from "./NewAddressModal";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const PurchaseModal = ({
   modalVisible,
@@ -36,12 +38,15 @@ const PurchaseModal = ({
   const [selectedAddressLabel, setSelectedAddressLabel] = useState("");
   const { selectedLocation } = useLocation();
   const { authData } = useAuth();
-  const [error, setError] = useState(""); // State to hold error message
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [newAddressModalVisible, setNewAddressModalVisible] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     if (authData && authData.email) {
-      // Fetch user addresses when component mounts
       fetchUserAddresses(authData.email);
+      setLoading(false);
     }
   }, [authData]);
 
@@ -55,7 +60,7 @@ const PurchaseModal = ({
       .then((data) => {
         if (data.success) {
           setUserAddresses(data.addresses);
-          console.log(userAddresses);
+          console.log(data.addresses);
           if (data.addresses.length > 0) {
             setSelectedAddress(data.addresses[0]._id); // Select the first address by default
             setSelectedAddressLabel(
@@ -75,6 +80,17 @@ const PurchaseModal = ({
   const handleInputChange = (field, value) => {
     clearError();
     setFormData({ ...formData, [field]: value });
+  };
+
+  const handleAddAddressPress = () => {
+    setNewAddressModalVisible(true);
+  };
+
+  const closeNewAddressModal = () => {
+    setNewAddressModalVisible(false);
+    setLoading(true);
+    fetchUserAddresses(authData.email);
+    setLoading(false);
   };
 
   const handleSubmit = async () => {
@@ -157,80 +173,88 @@ const PurchaseModal = ({
               {selectedItem.model} {selectedItem.company}
             </Text>
           </View>
-          <View style={styles.body}>
-            <View>
-              <Text style={styles.inputLabel}>Select Start Date : </Text>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleInputChange("date", e.target.value)}
-                style={styles.dateInput}
-              />
-            </View>
-            <View style={styles.durationContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Duration"
-                value={formData.duration}
-                onChangeText={(text) => handleInputChange("duration", text)}
-                keyboardType="numeric"
-              />
-              <Picker
-                selectedValue={formData.durationUnit}
-                style={styles.picker}
-                onValueChange={(itemValue) =>
-                  handleInputChange("durationUnit", itemValue)
-                }
-              >
-                <Picker.Item label="Days" value="days" />
-                <Picker.Item label="Hours" value="hours" />
-                <Picker.Item label="Months" value="months" />
-              </Picker>
-            </View>
-            {userAddresses.length > 0 ? (
-              <View style={styles.addressContainer}>
-                <Text style={styles.inputLabel}>Select Address : </Text>
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <View style={styles.body}>
+              <View>
+                <Text style={styles.inputLabel}>Select Start Date : </Text>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange("date", e.target.value)}
+                  style={styles.dateInput}
+                />
+              </View>
+              <View style={styles.durationContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Duration"
+                  value={formData.duration}
+                  onChangeText={(text) => handleInputChange("duration", text)}
+                  keyboardType="numeric"
+                />
                 <Picker
-                  style={styles.addressPicker}
-                  selectedValue={selectedAddress}
-                  onValueChange={(itemValue, itemIndex) => {
-                    setSelectedAddress(itemValue);
-                    setSelectedAddressLabel(
-                      `${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`
-                    );
-                  }}
+                  selectedValue={formData.durationUnit}
+                  style={styles.picker}
+                  onValueChange={(itemValue) =>
+                    handleInputChange("durationUnit", itemValue)
+                  }
                 >
-                  {userAddresses.map((address) => (
-                    <Picker.Item
-                      key={address._id}
-                      label={`${address.address}, ${address.pincode}`}
-                      value={address._id}
-                    />
-                  ))}
+                  <Picker.Item label="Days" value="days" />
+                  <Picker.Item label="Hours" value="hours" />
+                  <Picker.Item label="Months" value="months" />
                 </Picker>
+              </View>
+              {userAddresses.length > 0 ? (
+                <View style={styles.addressContainer}>
+                  <Text style={styles.inputLabel}>Select Address : </Text>
+                  <Picker
+                    style={styles.addressPicker}
+                    selectedValue={selectedAddress}
+                    onValueChange={(itemValue, itemIndex) => {
+                      setSelectedAddress(itemValue);
+                      setSelectedAddressLabel(
+                        `${userAddresses[itemIndex].address}, ${userAddresses[itemIndex].pincode}`
+                      );
+                    }}
+                  >
+                    {userAddresses.map((address) => (
+                      <Picker.Item
+                        key={address._id}
+                        label={`${address.address}, ${address.pincode}`}
+                        value={address._id}
+                      />
+                    ))}
+                  </Picker>
+                  <View className="items-center">
+                    <TouchableOpacity
+                      style={styles.addAddressContainer}
+                      onPress={handleAddAddressPress}
+                    >
+                      <Ionicons name="add-outline" size={18} color="#2E8B57" />
+                      <Text style={styles.addAddressText}>Add New Address</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
                 <View className="items-center">
                   <TouchableOpacity
                     style={styles.addAddressContainer}
-                    // onPress={handleSubmit}
+                    onPress={handleAddAddressPress}
                   >
                     <Ionicons name="add-outline" size={18} color="#2E8B57" />
-                    <Text style={styles.addAddressText}>Add New Address</Text>
+                    <Text style={styles.addAddressText}>Add Address</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
-            ) : (
-              <View className="items-center">
-                <TouchableOpacity
-                  style={styles.addAddressContainer}
-                  // onPress={handleSubmit}
-                >
-                  <Ionicons name="add-outline" size={18} color="#2E8B57" />
-                  <Text style={styles.addAddressText}>Add Address</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          </View>
+              )}
+              <NewAddressModal
+                modalVisible={newAddressModalVisible}
+                setModalVisible={setNewAddressModalVisible}
+              />
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            </View>
+          )}
           <View style={styles.footer}>
             <TouchableOpacity
               style={[styles.button, styles.submitButton]}
