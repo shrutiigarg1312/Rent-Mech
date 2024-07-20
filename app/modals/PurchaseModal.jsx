@@ -27,7 +27,7 @@ const PurchaseModal = ({
     email: "",
     date: "",
     duration: "",
-    durationUnit: "days", // Add duration unit to formData
+    durationUnit: "months",
     location: "",
     rent: "",
     productName: "",

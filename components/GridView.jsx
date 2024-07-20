@@ -27,8 +27,11 @@ const GridView = ({ item, setSelectedItem, setPurchaseModalVisible }) => {
         resizeMode="cover"
       />
       <View className="w-3/5 h-full p-2">
+        <View className="absolute right-4 top-[-2] rounded-lg bg-[#ff8300b3] w-13">
+          <Text className="text-white text-xs p-1 self-center ">Monthly</Text>
+        </View>
         <View>
-          <Text className="font-semibold text-lg">
+          <Text className="font-semibold text-lg mt-4">
             {item.model} {item.company}
           </Text>
           <View className="flex-row items-center my-2">
