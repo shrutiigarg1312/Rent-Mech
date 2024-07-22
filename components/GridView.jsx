@@ -2,16 +2,10 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../app/context/AuthContext";
-import { getImageSource } from "../utils/imageSourceUtils";
+import { getEquipmentsImage } from "../utils/imageUtils";
 
 const GridView = ({ item, setSelectedItem, setPurchaseModalVisible }) => {
   const { openLoginModal, authData } = useAuth();
-
-  const imageSource = getImageSource(
-    item.productName,
-    item.model,
-    item.company
-  );
 
   const handleRentPress = (item) => {
     if (authData == null) {
@@ -27,19 +21,11 @@ const GridView = ({ item, setSelectedItem, setPurchaseModalVisible }) => {
       className="mx-2 p-2 mb-6 rounded-lg bg-white items-center flex-row overflow-hidden"
       style={[styles.wrapperCustom, styles.shadowProp]}
     >
-      {imageSource ? (
-        <Image
-          className="mr-4 w-1/2 h-4/5 rounded-lg bg-gray"
-          source={imageSource}
-          resizeMode="cover"
-        />
-      ) : (
-        <Text
-          className="mr-4 w-1/2 h-4/5 rounded-lg bg-gray"
-          source={require(`../assets/images/earthmover.jpg`)}
-          resizeMode="cover"
-        />
-      )}
+      <Image
+        className="mr-4 w-1/2 h-4/5 rounded-lg bg-gray"
+        source={getEquipmentsImage(item.productName, item.model, item.company)}
+        resizeMode="cover"
+      />
       <View className="w-1/2 h-full p-2">
         <View className="absolute right-4 top-[-2] rounded-lg bg-[#ff8300b3] w-13">
           <Text className="text-white text-xs p-1 self-center ">Monthly</Text>

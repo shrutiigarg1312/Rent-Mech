@@ -22,7 +22,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import useRefreshing from "../../hooks/useRefreshing";
 import { useAuth } from "../context/AuthContext";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
-import { getImageSource } from "../../utils/imageSourceUtils";
+import { getEquipmentsImage } from "../../utils/imageUtils";
 
 const OrdersScreen = ({ route, navigation }) => {
   const [newOrders, setNewOrders] = useState([]);
@@ -69,8 +69,6 @@ const OrdersScreen = ({ route, navigation }) => {
       }
     }, [navigation, authData])
   );
-
-  const image = require("../../assets/images/earthmover.jpg");
 
   return (
     <SafeAreaView className="flex-1">
@@ -179,7 +177,7 @@ const OrdersScreen = ({ route, navigation }) => {
                   <View className="w-2/5 items-center justify-center">
                     <Image
                       className="mr-4 w-full h-5/6 rounded-lg bg-gray"
-                      source={getImageSource(
+                      source={getEquipmentsImage(
                         item.productName,
                         item.model,
                         item.company

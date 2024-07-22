@@ -14,6 +14,7 @@ import { equipmentTypes } from "../../constants/equipmentTypes";
 import Header from "../../components/Header";
 import { useLocation } from "../context/LocationContext";
 import useRefreshing from "../../hooks/useRefreshing";
+import { getCategoryImage } from "../../utils/imageUtils";
 
 const HomeScreen = ({ navigation }) => {
   // Importing equipmentTypes array
@@ -52,13 +53,6 @@ const HomeScreen = ({ navigation }) => {
     };
   }, []);
 
-  const getImagePath = (type) => {
-    type = type.toLowerCase();
-    type = type.replace(/\s+/g, "-");
-    const path = `../../assets/images/${type}/${type}.jpg`;
-    return path;
-  };
-
   // Navigate when item is pressed
   const itemPress = (item) => {
     navigation.navigate("Equipments", { productName: item.type });
@@ -79,7 +73,7 @@ const HomeScreen = ({ navigation }) => {
         ]}
       >
         <Image
-          source={getImagePath(item.type)}
+          source={getCategoryImage(item.type)}
           className="mb-1 w-full h-4/5 rounded-lg"
         />
         <Text style={styles.text} className="text-sm font-semibold text-black">
