@@ -111,14 +111,18 @@ const OrderItem = ({ order }) => {
       {(order.status == "Accepted" || order.status == "Completed") && (
         <View className="mt-5">
           <Text className="text-lg font-semibold mb-2">Vendor Details</Text>
-          <View className="flex-row mb-2">
-            <Text className="w-1/4 font-semibold">Name: </Text>
-            <Text className="w-3/4 font-semibold">{vendor.name}</Text>
-          </View>
-          <View className="flex-row mb-2">
-            <Text className="w-1/4 font-semibold">Contact: </Text>
-            <Text className="w-3/4 font-semibold">{vendor.phone}</Text>
-          </View>
+          {vendor && (
+            <View>
+              <View className="flex-row mb-2">
+                <Text className="w-1/4 font-semibold">Name: </Text>
+                <Text className="w-3/4 font-semibold">{vendor.name}</Text>
+              </View>
+              <View className="flex-row mb-2">
+                <Text className="w-1/4 font-semibold">Contact: </Text>
+                <Text className="w-3/4 font-semibold">{vendor.phone}</Text>
+              </View>
+            </View>
+          )}
         </View>
       )}
     </View>
