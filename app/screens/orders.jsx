@@ -22,6 +22,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import useRefreshing from "../../hooks/useRefreshing";
 import { useAuth } from "../context/AuthContext";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
+import { getImageSource } from "../../utils/imageSourceUtils";
 
 const OrdersScreen = ({ route, navigation }) => {
   const [newOrders, setNewOrders] = useState([]);
@@ -178,7 +179,11 @@ const OrdersScreen = ({ route, navigation }) => {
                   <View className="w-2/5 items-center justify-center">
                     <Image
                       className="mr-4 w-full h-5/6 rounded-lg bg-gray"
-                      source={image}
+                      source={getImageSource(
+                        item.productName,
+                        item.model,
+                        item.company
+                      )}
                     />
                   </View>
                 </View>

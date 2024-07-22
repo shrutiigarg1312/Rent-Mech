@@ -52,6 +52,13 @@ const HomeScreen = ({ navigation }) => {
     };
   }, []);
 
+  const getImagePath = (type) => {
+    type = type.toLowerCase();
+    type = type.replace(/\s+/g, "-");
+    const path = `../../assets/images/${type}/${type}.jpg`;
+    return path;
+  };
+
   // Navigate when item is pressed
   const itemPress = (item) => {
     navigation.navigate("Equipments", { productName: item.type });
@@ -71,7 +78,10 @@ const HomeScreen = ({ navigation }) => {
           styles.shadowProp,
         ]}
       >
-        <Image source={item.image} className="mb-1 w-full h-4/5 rounded-lg" />
+        <Image
+          source={getImagePath(item.type)}
+          className="mb-1 w-full h-4/5 rounded-lg"
+        />
         <Text style={styles.text} className="text-sm font-semibold text-black">
           {item.type}
         </Text>
