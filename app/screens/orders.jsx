@@ -23,6 +23,7 @@ import useRefreshing from "../../hooks/useRefreshing";
 import { useAuth } from "../context/AuthContext";
 import { API_ENDPOINTS, API_HEADERS } from "../../config/apiConfig";
 import { getEquipmentsImage } from "../../utils/imageUtils";
+import OrderItem from "./components/orderItem";
 
 const OrdersScreen = ({ route, navigation }) => {
   const [newOrders, setNewOrders] = useState([]);
@@ -121,72 +122,7 @@ const OrdersScreen = ({ route, navigation }) => {
         ) : (
           <FlatList
             data={newOrders}
-            renderItem={({ item }) => (
-              <View
-                className="flex-1 mx-2 mb-6 rounded-lg bg-white bg-white p-4 shadow-md"
-                style={[styles.wrapperCustom, styles.shadowProp]}
-              >
-                <View className="self-center">
-                  <Text className="text-lg font-semibold text-black mb-3">
-                    {item.productName}: {item.model} {item.company}
-                  </Text>
-                </View>
-                <View className="flex-1 flex-row justify-between">
-                  <View className="w-1/2">
-                    <View className="flex-row mb-2">
-                      <Text className="flex-1">Date </Text>
-                      <Text className="font-semibold flex-1">{item.date}</Text>
-                    </View>
-                    <View className="flex-row mb-2">
-                      <Text className="flex-1">Duration </Text>
-                      <Text className="font-semibold flex-1">
-                        {item.duration}
-                      </Text>
-                    </View>
-                    <View className="flex-row mb-2">
-                      <Text className="flex-1">Location </Text>
-                      <Text className="font-semibold flex-1">
-                        {item.location}
-                      </Text>
-                    </View>
-                    <View className="flex-row mb-2">
-                      <Text className="flex-1">Rent </Text>
-                      <Text className="font-semibold flex-1">
-                        {item.rent === "ND" ? item.rent : `Rs. ${item.rent}`}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center mt-2">
-                      <Text className="flex-1 font-semibold">Staus</Text>
-                      <View
-                        className={`flex-1 rounded-lg ${
-                          item.status === "Placed" || item.status === "Accepted"
-                            ? "bg-primary"
-                            : item.status === "Completed"
-                            ? "bg-green"
-                            : item.status === "Cancelled"
-                            ? "bg-red"
-                            : "bg-red"
-                        }`}
-                      >
-                        <Text className="font-semibold text-white px-2 py-1 self-center ">
-                          {item.status}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View className="w-2/5 items-center justify-center">
-                    <Image
-                      className="mr-4 w-full h-5/6 rounded-lg bg-gray"
-                      source={getEquipmentsImage(
-                        item.productName,
-                        item.model,
-                        item.company
-                      )}
-                    />
-                  </View>
-                </View>
-              </View>
-            )}
+            renderItem={({ item }) => <OrderItem order={item} />}
             keyExtractor={(item) => item._id}
             showsVerticalScrollIndicator={false}
           />
