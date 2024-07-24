@@ -89,6 +89,7 @@ const SignupModal = () => {
             The RentMech Team
           `;
           console.log(signupEmail);
+          return;
           const mailResponse = await fetch(API_ENDPOINTS.SEND_EMAIL, {
             method: "POST",
             headers: API_HEADERS,

@@ -116,19 +116,21 @@ const LoginModal = () => {
               onChangeText={setPassword}
               secureTextEntry
             />
-            <Pressable onPress={handleForgotPasswordPress}>
-              <Text
-                style={{
-                  padding: 5,
-                  marginBottom: 10,
-                  color: "blue",
-                  textDecorationLine: "underline",
-                  fontSize: 13,
-                }}
-              >
-                Forgot Password?
-              </Text>
-            </Pressable>
+            {/* <Pressable
+            onPress={handleForgotPasswordPress}
+            > */}
+            <Text
+              style={{
+                padding: 5,
+                marginBottom: 10,
+                color: "gray",
+                textDecorationLine: "underline",
+                fontSize: 13,
+              }}
+            >
+              Forgot Password?
+            </Text>
+            {/* </Pressable> */}
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.footer}>
